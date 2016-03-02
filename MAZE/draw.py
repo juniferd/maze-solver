@@ -1,4 +1,5 @@
 from random import randint, shuffle
+import random
 from math import sqrt
 import sys
 
@@ -286,8 +287,10 @@ class Maze(object):
             else:
                 board_sets[coord] = solution_set
 
+
+        for i in xrange(len(board_sets) * 5):
         #print 'solution set: ',solution_set
-        for coord in board_sets:
+            coord = random.choice(board_sets.keys())
             # pick a random neighbor up, right, down, left
             neighbor = self.pick_random_neighbor(coord)
             if neighbor in maze_map:
