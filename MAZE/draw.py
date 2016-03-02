@@ -46,15 +46,33 @@ class Maze(object):
         
         # then generate a solution path
         solution_paths = self.generate_solution_paths(maze_map)
+
         # now pick just one path
-        solution_path = self.pick_path(solution_paths)
+        solution_path = self.pick_path(solution_paths,board_size)
+        #print 'solution path: ',solution_path
         # pick new tiles for this solution path
-        new_tiles = self.generate_new_tiles(solution_path)
-        #for path in solution_paths:
-        #    print 'possible path: ',path
+        solution_connections,new_tiles = self.generate_new_tiles(solution_path)
+        #print 'connections: ',solution_connections
+        for tile in new_tiles:
+            maze_map[tile] = new_tiles[tile]
+
+        # form minimum spanning tree that connects to solution path without any cycles
+        other_connections = self.get_min_spanning_tree(solution_path,maze_map)
         
-        print 'solution path: ',solution_path
-        print 'connections: ',new_tiles
+        other_paths_dict = {}
+        for point in other_connections:
+            if other_connections[point]:
+                other_paths_dict[point] = other_connections[point]
+            else:
+                # special case where connecting back to solution path
+                pass
+        #print 'other_paths_dict: ',other_paths_dict
+        other_tiles = self.generate_other_tiles(other_paths_dict,solution_connections)
+        #print other_tiles        
+        for tile in other_tiles:
+            maze_map[tile] = other_tiles[tile]
+        #print 'solution path: ',solution_path
+        
         return maze_map
 
     ## generate the initial "maze"
@@ -77,8 +95,11 @@ class Maze(object):
             visited = []
             solutions = []
 
+        if  len(visited) > (n * n)/2:
+            return solutions
+        
         sol_len = len(solutions)
-        if sol_len < 100:
+        if sol_len < 1:
             if curr != end:
                 next_coords = self.get_neighbors(maze_map,curr)
                 for tile in visited:
@@ -102,14 +123,17 @@ class Maze(object):
             elif curr == end:
                 #print "we found the end"
                 visited.append(end)
-                stringified_tuples = [ str(x) for x in visited ]
-                stringified_path = "|".join(stringified_tuples)
-                solutions.append(stringified_path)
+
+                if len(visited) < (n * n)/2:
+                    stringified_tuples = [ str(x) for x in visited ]
+                    stringified_path = "|".join(stringified_tuples)
+                    solutions.append(stringified_path)
                 visited.pop()
         #print '-----------------'
         return solutions
 
-    def pick_path(self,path):
+    def pick_path(self,path,board_size):
+        n = board_size
         arr_path = []
         for line in path:
             line = line.split('|')
@@ -155,9 +179,148 @@ class Maze(object):
 
     def generate_new_tiles(self,path):
         connections = self.get_connections(path)
+        #print 'connections: ',connections
+        directions = {}
+        tiles = {}
 
+        for coord in connections:
+            directions[coord] = self.get_directions(coord,connections[coord])
+            # add on extra directions for start and end tiles
+            if coord == path[0]:
+                # start tile needs to connect to outside
+                choices = ['up','left',['up','left']]
+                r = randint(0,2)
+                choice = choices[r]
+                if type(choice) == list:
+                    directions[coord].extend(choice)
+                else:
+                    directions[coord].append(choice)
+            elif coord == path[-1]:
+                # end tile needs to connect to outside
+                choices = ['right','down',['right','down']]
+                r = randint(0,2)
+                choice = choices[r]
+                if type(choice) == list:
+                    directions[coord].extend(choice)
+                else:
+                    directions[coord].append(choice)
+            
+            # now get corresponding symbol
+            tiles[coord] = self.get_symbol(directions, coord)
+        #print 'directions: ',directions
+        #print 'tiles: ',tiles
+        return connections,tiles
+
+    def get_symbol(self,directions,coord):
+        sym = None
+        for key in SYMBOL_MAP:
+            directions[coord].sort()
+            SYMBOL_MAP[key].sort()
+            if directions[coord] == SYMBOL_MAP[key]:
+                sym = key
+        return sym
+
+    def generate_other_tiles(self,connections=None,solution_connections=None):
+        #TODO: probably just need to combine generate_new_tiles with this since it's doing the same thing
+        directions = {}
+        tiles = {}
+
+        for coord in connections:
+            if coord in solution_connections:
+                # need to update solution connections to connect
+                connections[coord].extend(solution_connections[coord])
+                # TODO: need to have start and end tile exit to outside
+
+            #print coord,": ",connections[coord],
+            directions[coord] = self.get_directions(coord,connections[coord])
+            if len(directions[coord]) < 2:
+                # TODO: add more variance
+                
+                if directions[coord] == ['up']:
+                    directions[coord].append('down')
+                elif directions[coord] == ['down']:
+                    directions[coord].append('up')
+                elif directions[coord] == ['left']:
+                    directions[coord].append('right')
+                elif directions[coord] == ['right']:
+                    directions[coord].append('left')
+                else:
+                    #print 'ERROR in generating other tiles directions',directions[coord]
+                    pass
+                
+            # now get corresponding symbol
+            tiles[coord] = self.get_symbol(directions, coord)
+
+        #print 'directions: ',directions
+        #print 'tiles: ',tiles
+        return tiles        
+
+    def get_min_spanning_tree(self,solution_path,maze_map):
+        solution_set = set(solution_path)
+        board_sets = {}
+        connections = {}
+
+        for coord in maze_map:
+            connections[coord] = []
+            if coord not in solution_set:
+                arr_coord = [coord]
+                board_sets[coord] = set(arr_coord)
+                
+            else:
+                board_sets[coord] = solution_set
+
+        #print 'solution set: ',solution_set
+        for coord in board_sets:
+            # pick a random neighbor up, right, down, left
+            neighbor = self.pick_random_neighbor(coord)
+            if neighbor in maze_map:
+                # check to make sure this coordinate is on the board
+                
+                # check to see will union create a cycle/loop?
+                if board_sets[neighbor] == board_sets[coord]:
+                    is_valid = False
+                    #print 'could not connect ',coord,' to ',neighbor
+                else:
+                    is_valid = True
+                    #print 'connecting ',coord,' to ',neighbor
+                    connections[coord].append(neighbor)
+                    connections[neighbor].append(coord)
+                
+                if is_valid:
+                    # do some work
+                    board_sets[neighbor] = board_sets[neighbor] | board_sets[coord]
+                    # for each coordinate in the unioned sets, do the same
+                    for tile in board_sets[neighbor]:
+                        board_sets[tile] = board_sets[neighbor]
+                    #print 'new set: ',coord,': ',board_sets[coord]
+
+        
 
         return connections
+        
+
+    def pick_random_neighbor(self,coord):
+        direction = ['up','right','down','left']
+        r = randint(0,3)
+        neighbor = direction[r]
+        #print 'coord: ',coord,
+        if neighbor == 'up':
+            next_tile = (coord[0],coord[1]-1)
+            #print 'up: ',
+        elif neighbor == 'right':
+            next_tile = (coord[0]+1,coord[1])
+            #print 'right: ',
+        elif neighbor == 'down':
+            next_tile = (coord[0],coord[1]+1)
+            #print 'down: ',
+        elif neighbor == 'left':
+            next_tile = (coord[0]-1,coord[1])
+            #print 'left: ',
+        else:
+            print 'ERROR getting random neighbor'
+            return
+        #print next_tile
+        return next_tile
 
     def get_connections(self,path):
         connections = {}
@@ -199,6 +362,34 @@ class Maze(object):
                 next_coords.append(next_coord)
 
         return next_coords
+
+    def get_directions(self,start_coord,next_coords):
+        directions = []
+        start_x = start_coord[0]
+        start_y = start_coord[1]
+
+        for next_coord in next_coords:
+            next_x = next_coord[0]
+            next_y = next_coord[1]
+
+            dx = next_x - start_x
+            dy = next_y - start_y
+
+            if dx == 0 and dy == 1:
+                direction = 'down'
+            elif dx == 0 and dy == -1:
+                direction = 'up'
+            elif dx == 1 and dy == 0:
+                direction = 'right'
+            elif dx == -1 and dy == 0:
+                direction = 'left'
+            else:
+                print 'ERROR no direction found'
+                pass
+
+            directions.append(direction)
+
+        return directions
 
     def get_next_coord(self,maze_map,coord,direction):
         start_x = coord[0]
@@ -244,7 +435,6 @@ class Maze(object):
         #for key in self.__maze:
         #    print key,": ",self.__maze[key], viz[key]
 
-        print "--------"
         
         for y in range(0,n):
             for x in range(0,n):
