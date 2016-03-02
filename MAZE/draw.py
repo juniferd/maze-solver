@@ -444,6 +444,9 @@ class Maze(object):
 
         return viz_map 
 
+    def get_maze_map(self):
+        return self.__maze
+
     ## draw a maze
     def draw_maze(self):
         n = int(sqrt(len(self.__maze)))
