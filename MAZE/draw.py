@@ -1,5 +1,6 @@
 from random import randint, shuffle
 from math import sqrt
+import sys
 
 SYMBOL_MAP = {
     '-' : ['right', 'left'],
@@ -31,22 +32,38 @@ SYMBOL_KEY = []
 for key in SYMBOL_MAP:
     SYMBOL_KEY.append(key)
 
+class IterationWentOnTooLong(Exception):
+    pass
+
 class Maze(object):
 
     def __init__(self,board_size):
+        self.__counter = 0
         self.__maze = self.generate_maze(board_size)
+        
 
     ## generate a maze
     def generate_maze(self,board_size):
         maze_map = {}
         solution_path = []
+        solution_paths = None
 
         # first generate a maze that has all possible options
         maze_map = self.generate_init_board(board_size)
         
         # then generate a solution path
-        solution_paths = self.generate_solution_paths(maze_map)
+        for i in range(0,1000):
+            try:
+                self.__counter = 0
+                solution_paths = self.generate_solution_paths(maze_map)
+                print "FOUND SOLUTION ON ITERATIONS", i
+                break
+            except IterationWentOnTooLong:
+                pass
 
+        if solution_paths == None:
+            print 'Couldn\'t generate path'
+            sys.exit(0)
         # now pick just one path
         solution_path = self.pick_path(solution_paths,board_size)
         #print 'solution path: ',solution_path
@@ -90,13 +107,14 @@ class Maze(object):
         start = (0,0)
         n = int(sqrt(len(maze_map)))
         end = (n-1,n-1)
-        #print '-----------------'
+        self.__counter += 1
+        
+        if self.__counter > 1000:
+            raise IterationWentOnTooLong()
+
         if visited == None:
             visited = []
             solutions = []
-
-        if  len(visited) > (n * n)/2:
-            return solutions
         
         sol_len = len(solutions)
         if sol_len < 1:
@@ -124,10 +142,9 @@ class Maze(object):
                 #print "we found the end"
                 visited.append(end)
 
-                if len(visited) < (n * n)/2:
-                    stringified_tuples = [ str(x) for x in visited ]
-                    stringified_path = "|".join(stringified_tuples)
-                    solutions.append(stringified_path)
+                stringified_tuples = [ str(x) for x in visited ]
+                stringified_path = "|".join(stringified_tuples)
+                solutions.append(stringified_path)
                 visited.pop()
         #print '-----------------'
         return solutions
@@ -235,7 +252,7 @@ class Maze(object):
             directions[coord] = self.get_directions(coord,connections[coord])
             if len(directions[coord]) < 2:
                 # TODO: add more variance
-                
+
                 if directions[coord] == ['up']:
                     directions[coord].append('down')
                 elif directions[coord] == ['down']:
