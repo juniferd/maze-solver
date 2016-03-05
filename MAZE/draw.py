@@ -40,8 +40,19 @@ class Maze(object):
 
     def __init__(self,board_size):
         self.__counter = 0
+        self.__goal = self.set_random_goal(board_size)
         self.__maze = self.generate_maze(board_size)
         
+    ## set a random point inside to be the goal
+    def set_random_goal(self,board_size):
+        rand_x = randint((board_size - 1)/2,board_size - 1)
+        rand_y = randint((board_size - 1)/2,board_size - 1)
+
+        goal = (rand_x,rand_y)
+
+        print 'GOAL: ',goal
+
+        return goal
 
     ## generate a maze
     def generate_maze(self,board_size):
@@ -89,7 +100,7 @@ class Maze(object):
         #print other_tiles        
         for tile in other_tiles:
             maze_map[tile] = other_tiles[tile]
-        #print 'solution path: ',solution_path
+        print 'SOLUTION PATH: ',solution_path
         
         return maze_map
 
@@ -107,7 +118,7 @@ class Maze(object):
     def generate_solution_paths(self,maze_map,curr=(0,0),visited=None,solutions=None):
         start = (0,0)
         n = int(sqrt(len(maze_map)))
-        end = (n-1,n-1)
+        end = self.__goal
         self.__counter += 1
         
         if self.__counter > 1000:
@@ -214,8 +225,11 @@ class Maze(object):
                 else:
                     directions[coord].append(choice)
             elif coord == path[-1]:
-                # end tile needs to connect to outside
-                choices = ['right','down',['right','down']]
+                # end tile needs to connect to something else other than the path
+                
+                choices = ['up','right','down','left']
+                choices.remove(directions[coord][0])
+
                 r = randint(0,2)
                 choice = choices[r]
                 if type(choice) == list:
@@ -443,12 +457,18 @@ class Maze(object):
 
         for (x,y) in maze_map:
             v = maze_map[(x,y)]
-            viz_map[(x,y)] = UNICODE_MAP[v]
+            try:
+                viz_map[(x,y)] = UNICODE_MAP[v]
+            except KeyError:
+                print 'key error at: ', (x,y), v
 
         return viz_map 
 
     def get_maze_map(self):
         return self.__maze
+
+    def get_goal(self):
+        return self.__goal
 
     ## draw a maze
     def draw_maze(self):

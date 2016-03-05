@@ -3,7 +3,7 @@ from PIL import Image, ImageDraw
 from math import sqrt
 
 
-def init(maze):
+def init(maze,end,start=(0,0)):
     #print 'a maze: ',maze
     ext = os.path.dirname(os.path.realpath(sys.argv[0]))
 
@@ -41,12 +41,23 @@ def init(maze):
         this_tile = tiles[this_symbol](coord_x,coord_y,draw)
         #img.paste(this_tile,(coord_x,coord_y))
     
-
+    #now draw the start and finish
+    draw_goal(start,draw)
+    draw_goal(end,draw,'end')
 
     img_path = ext + '/img/output.jpg'
     img.save(img_path)
     
     img.show()
+
+def draw_goal(coord,draw,goal='start'):
+    x0 = (coord[0] * 20) + 5
+    y0 = (coord[1] * 20) + 5
+
+    x1 = x0 + 10
+    y1 = y0 + 10
+    draw.ellipse([(x0,y0),(x1,y1)],None,'#ff00ff')
+    draw.text((x1+2,y0),goal,'#ff00ff')
 
 def get_tile_01(start_x,start_y,draw):
     # draw '-'
