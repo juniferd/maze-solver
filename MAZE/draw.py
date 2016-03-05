@@ -41,7 +41,8 @@ class Maze(object):
     def __init__(self,board_size):
         self.__counter = 0
         self.__goal = self.set_random_goal(board_size)
-        self.__maze = self.generate_maze(board_size)
+        self.__maze,self.__solution = self.generate_maze(board_size)
+        
         
     ## set a random point inside to be the goal
     def set_random_goal(self,board_size):
@@ -78,6 +79,7 @@ class Maze(object):
             sys.exit(0)
         # now pick just one path
         solution_path = self.pick_path(solution_paths,board_size)
+        
         #print 'solution path: ',solution_path
         # pick new tiles for this solution path
         solution_connections,new_tiles = self.generate_new_tiles(solution_path)
@@ -102,7 +104,7 @@ class Maze(object):
             maze_map[tile] = other_tiles[tile]
         print 'SOLUTION PATH: ',solution_path
         
-        return maze_map
+        return maze_map,solution_path
 
     ## generate the initial "maze"
     def generate_init_board(self,board_size):
@@ -121,7 +123,7 @@ class Maze(object):
         end = self.__goal
         self.__counter += 1
         
-        if self.__counter > 1000:
+        if self.__counter > n**2:
             raise IterationWentOnTooLong()
 
         if visited == None:
@@ -469,6 +471,9 @@ class Maze(object):
 
     def get_goal(self):
         return self.__goal
+
+    def get_solution(self):
+        return self.__solution
 
     ## draw a maze
     def draw_maze(self):

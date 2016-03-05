@@ -6,5 +6,6 @@ a_maze.draw_maze()
 
 a_maze_map = a_maze.get_maze_map()
 a_goal = a_maze.get_goal()
+a_solution = a_maze.get_solution()
 
-save_as_image.init(a_maze_map,a_goal)
+save_as_image.init(a_maze_map,a_goal,a_solution)
