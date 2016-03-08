@@ -3,11 +3,9 @@ from PIL import Image, ImageDraw
 from math import sqrt
 
 
-def init(maze,end,solution,start=(0,0)):
+def init(maze,end,solution,show_path=True,start=(0,0)):
     #print 'a maze: ',maze
     ext = os.path.dirname(os.path.realpath(sys.argv[0]))
-
-    tile_ext = ext + '/img/maze-pieces-'
 
     tiles = {
         '-' : get_tile_01,
@@ -42,23 +40,25 @@ def init(maze,end,solution,start=(0,0)):
         this_tile = tiles[this_symbol](coord_x,coord_y,draw)
         #img.paste(this_tile,(coord_x,coord_y))
     
-    #draw the solution path
-    solution_path = []
-    for vertex in solution:
-        coord_x = (vertex[0] * 20) + 10
-        coord_y = (vertex[1] * 20) + 10
-        solution_path.append((coord_x,coord_y))
+    if show_path:
+        #draw the solution path
+        solution_path = []
+        for vertex in solution:
+            coord_x = (vertex[0] * 20) + 10
+            coord_y = (vertex[1] * 20) + 10
+            solution_path.append((coord_x,coord_y))
 
-    draw_solution_path(solution_path,draw)
+        draw_solution_path(solution_path,draw)
 
-    #draw the start and finish
-    draw_goal(start,draw)
-    draw_goal(end,draw,'end')
+        #draw the start and finish
+        draw_goal(start,draw)
+        draw_goal(end,draw,'end')
 
-    img_path = ext + '/img/output.jpg'
+    img_path = ext + '/static/img/output.jpg'
     img.save(img_path)
     
-    img.show()
+    #img.show()
+    return img
 
 def draw_solution_path(solution_path,draw):
     draw.line(solution_path,'#544eff',2)
