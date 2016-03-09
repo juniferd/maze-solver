@@ -1,9 +1,17 @@
-<!doctype html>
-<title>Hello from the ant farm</title>
-{% if num %}
-  <h1>Hello {{ num }}!</h1>
-{% else %}
-  <h1>Hello from the ant farm</h1>
-{% endif %}
-<img src = "{{ url_for('static', filename='img/output.jpg') }}">
+{% extends "base.html" %}
+{% block title %}Hello from the ant farm{% endblock %}
 
+{% block content %}
+    {% if num %}
+      <h1>Hello {{ num }}!</h1>
+    {% else %}
+      <h1>Hello from the ant farm</h1>
+    {% endif %}
+    <div id = "antfarm">
+        <img src = "{{ url_for('static', filename='img/output.jpg') }}">
+    </div>
+{% endblock %}
+
+{% block footerjs %}
+    <script src = "../static/antfarm.js"></script>
+{% endblock %}

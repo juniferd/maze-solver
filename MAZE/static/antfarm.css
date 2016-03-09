@@ -1,0 +1,39 @@
+* {
+    font-family: 'Helvetica Neue', Arial, sans-serif;
+}
+
+#content{
+    width: 960px;
+    margin: 0 auto;
+}
+
+#antfarm{
+    display: block;
+    width: 800px;
+    height: 800px;
+    position: relative;
+}
+#antfarm img{
+    position:absolute;
+    left: 0;
+    top: 0;
+    z-index: 0;
+}
+#antfarm svg{
+    position:absolute;
+    left: 0;
+    top: 0;
+    z-index: 10;
+    width: 800px;
+    height: 800px;
+}
+#ant {
+    display: block;
+    width: 4px;
+    height: 2px;
+    border-radius: 2px;
+    background: red;
+    position: absolute;
+    left: 0;
+    top: 0;
+}
