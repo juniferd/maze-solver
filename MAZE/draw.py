@@ -385,6 +385,17 @@ class Maze(object):
         for tile in maze_map:
             next_coords = self.get_neighbors(maze_map,tile)
             connections[tile] = next_coords
+
+        for curr in connections:
+            conn_coords = connections[curr]
+            for conn_coord in conn_coords:
+                reciprocal_coords = connections[conn_coord]
+                if not curr in reciprocal_coords:
+                    connections[curr].remove(conn_coord)
+                    #print 'removed a connection'
+        #for connection in connections:
+            #print connection,': ',connections[connection]
+        
         return connections
 
     def get_neighbors(self,maze_map,coord):

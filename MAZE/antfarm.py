@@ -2,20 +2,6 @@ import draw
 import image
 from random import randint
 
-SYMBOL_MAP = {
-    '-' : ['right', 'left'],
-    '|' : ['up', 'down'],
-    'l' : ['up','right'],
-    'j' : ['up','left'],
-    'r' : ['right','down'],
-    '7' : ['down', 'left'],
-    '<' : ['up', 'right', 'down'],
-    '>' : ['up', 'down', 'left'],
-    'v' : ['up', 'right', 'left'],
-    '^' : ['right', 'down', 'left'],
-    '+' : ['up','right','down','left']
-}
-
 class AntFarm(object):
     def __init__(self):
         a_maze = draw.Maze(40)
@@ -24,6 +10,7 @@ class AntFarm(object):
         self.a_maze_map = a_maze.get_maze_map()
         self.a_goal = a_maze.get_goal()
         self.a_solution = a_maze.get_solution()
+        self.a_connections = a_maze.get_all_neighbors(self.a_maze_map)
 
         self.a_maze = a_maze
 
@@ -50,22 +37,23 @@ class Ant(object):
 
     def move_ant(self,previous):
         maze_map = self.farm.a_maze_map
+        connections = self.farm.a_connections
         if previous:
 
             coord = previous['pos']
-            symbol = maze_map[coord]
-            options = SYMBOL_MAP[symbol]
-            next_coords = []
-            for direction in options:
-                next_coord = self.farm.a_maze.get_next_coord(maze_map,coord,direction)
-                if next_coord:
-                    next_coords.append(next_coord)
-            l = len(next_coords)
+            #print 'coord: ',coord,
+
+            neighbors = connections[coord]
+            #print ', neighbors: ',neighbors
+                
+            l = len(neighbors)
             r = randint(0,l-1)
 
-            new_position = next_coords[r]
+            new_position = neighbors[r]
         else:
             new_position = (0,0)
+
+        # leave a chemical marker
 
 
         ant = {

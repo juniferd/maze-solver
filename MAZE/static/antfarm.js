@@ -1,3 +1,4 @@
+
 var svg = d3.select('#antfarm').insert('svg',':first-child');
 
 /*svg.attr('height',800)
@@ -22,11 +23,7 @@ svg.append('svg:rect')
     .attr('height',800)
     .attr('fill','url(#bgmaze)');*/
 
-var ant = svg.append('svg:circle')
-    .attr('r',2)
-    .attr('fill','red')
-    .attr('cx',10)
-    .attr('cy',10);
+
 
 var pageCounter = setInterval(getAntBehavior, 1500);
 counter = 0;
@@ -37,16 +34,25 @@ function getAntBehavior() {
         if (error){
             console.log('error')
         } else {
-            var mode = data['mode']
-            var pos = data['pos']
-            var mapPosX = (pos[0] * 20) + 10
-            var mapPosY = (pos[1] * 20) + 10
-            console.log(mapPosX)
-            console.log(mapPosY)
-            ant.transition()
-                .attr('cx',mapPosX)
-                .attr('cy',mapPosY)
+            
+                var ant = svg.selectAll('.ant')
+                    .data(data)
+
+                ant.enter()
+                    .append('circle')
+                    .attr('class','ant')
+                    .attr('r',2)
+                    .attr('fill','red')
+
+                ant.transition()
+                    .attr('cx',function(d){ return (d.pos[0] * 20) + 10})
+                    .attr('cy',function(d){ return (d.pos[1] * 20) + 10});
+
+                ant.exit().remove();
+            
             counter ++;
         } 
     });
 }
+
+
