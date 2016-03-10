@@ -87,8 +87,8 @@ def get_tile_01(start_x,start_y,draw):
     x3 = x1
     y3 = start_y + 20
 
-    draw.rectangle([(x0,y0),(x1,y1)],'#333333')
-    draw.rectangle([(x2,y2),(x3,y3)],'#333333')
+    draw.rectangle([(x0,y0),(x1,y1)],'#cccccc')
+    draw.rectangle([(x2,y2),(x3,y3)],'#cccccc')
 
     pass
 
@@ -107,8 +107,8 @@ def get_tile_02(start_x,start_y,draw):
     x3 = start_x + 20
     y3 = start_y + 20
 
-    draw.rectangle([(x0,y0),(x1,y1)],'#333333')
-    draw.rectangle([(x2,y2),(x3,y3)],'#333333')
+    draw.rectangle([(x0,y0),(x1,y1)],'#cccccc')
+    draw.rectangle([(x2,y2),(x3,y3)],'#cccccc')
 
     pass
 
@@ -139,10 +139,10 @@ def get_tile_03(start_x,start_y,draw):
     x7 = x3
     y7 = y5
 
-    draw.rectangle([(x0,y0),(x1,y1)],'#333333')
-    draw.rectangle([(x2,y2),(x3,y3)],'#333333')
-    draw.rectangle([(x4,y4),(x5,y5)],'#333333')
-    draw.rectangle([(x6,y6),(x7,y7)],'#333333')
+    draw.rectangle([(x0,y0),(x1,y1)],'#cccccc')
+    draw.rectangle([(x2,y2),(x3,y3)],'#cccccc')
+    draw.rectangle([(x4,y4),(x5,y5)],'#cccccc')
+    draw.rectangle([(x6,y6),(x7,y7)],'#cccccc')
 
     pass
 
@@ -167,9 +167,9 @@ def get_tile_04(start_x,start_y,draw):
     x5 = start_x + 20
     y5 = y3
 
-    draw.rectangle([(x0,y0),(x1,y1)],'#333333')
-    draw.rectangle([(x2,y2),(x3,y3)],'#333333')
-    draw.rectangle([(x4,y4),(x5,y5)],'#333333')
+    draw.rectangle([(x0,y0),(x1,y1)],'#cccccc')
+    draw.rectangle([(x2,y2),(x3,y3)],'#cccccc')
+    draw.rectangle([(x4,y4),(x5,y5)],'#cccccc')
 
     pass
 
@@ -194,9 +194,9 @@ def get_tile_05(start_x,start_y,draw):
     x5 = start_x + 20
     y5 = y1
 
-    draw.rectangle([(x0,y0),(x1,y1)],'#333333')
-    draw.rectangle([(x2,y2),(x3,y3)],'#333333')
-    draw.rectangle([(x4,y4),(x5,y5)],'#333333')
+    draw.rectangle([(x0,y0),(x1,y1)],'#cccccc')
+    draw.rectangle([(x2,y2),(x3,y3)],'#cccccc')
+    draw.rectangle([(x4,y4),(x5,y5)],'#cccccc')
 
     pass
 
@@ -221,9 +221,9 @@ def get_tile_06(start_x,start_y,draw):
     x5 = x3
     y5 = start_y + 20
 
-    draw.rectangle([(x0,y0),(x1,y1)],'#333333')
-    draw.rectangle([(x2,y2),(x3,y3)],'#333333')
-    draw.rectangle([(x4,y4),(x5,y5)],'#333333')
+    draw.rectangle([(x0,y0),(x1,y1)],'#cccccc')
+    draw.rectangle([(x2,y2),(x3,y3)],'#cccccc')
+    draw.rectangle([(x4,y4),(x5,y5)],'#cccccc')
 
     pass
 
@@ -248,9 +248,9 @@ def get_tile_07(start_x,start_y,draw):
     x5 = x1
     y5 = y3
 
-    draw.rectangle([(x0,y0),(x1,y1)],'#333333')
-    draw.rectangle([(x2,y2),(x3,y3)],'#333333')
-    draw.rectangle([(x4,y4),(x5,y5)],'#333333')
+    draw.rectangle([(x0,y0),(x1,y1)],'#cccccc')
+    draw.rectangle([(x2,y2),(x3,y3)],'#cccccc')
+    draw.rectangle([(x4,y4),(x5,y5)],'#cccccc')
 
     pass
 
@@ -275,9 +275,9 @@ def get_tile_08(start_x,start_y,draw):
     x5 = x3
     y5 = start_y + 5
 
-    draw.rectangle([(x0,y0),(x1,y1)],'#333333')
-    draw.rectangle([(x2,y2),(x3,y3)],'#333333')
-    draw.rectangle([(x4,y4),(x5,y5)],'#333333')
+    draw.rectangle([(x0,y0),(x1,y1)],'#cccccc')
+    draw.rectangle([(x2,y2),(x3,y3)],'#cccccc')
+    draw.rectangle([(x4,y4),(x5,y5)],'#cccccc')
 
     pass
 
@@ -302,9 +302,9 @@ def get_tile_09(start_x,start_y,draw):
     x5 = x2
     y5 = y3
 
-    draw.rectangle([(x0,y0),(x1,y1)],'#333333')
-    draw.rectangle([(x2,y2),(x3,y3)],'#333333')
-    draw.rectangle([(x4,y4),(x5,y5)],'#333333')
+    draw.rectangle([(x0,y0),(x1,y1)],'#cccccc')
+    draw.rectangle([(x2,y2),(x3,y3)],'#cccccc')
+    draw.rectangle([(x4,y4),(x5,y5)],'#cccccc')
 
     pass
 
@@ -329,9 +329,9 @@ def get_tile_10(start_x,start_y,draw):
     x5 = x3
     y5 = y1
 
-    draw.rectangle([(x0,y0),(x1,y1)],'#333333')
-    draw.rectangle([(x2,y2),(x3,y3)],'#333333')
-    draw.rectangle([(x4,y4),(x5,y5)],'#333333')
+    draw.rectangle([(x0,y0),(x1,y1)],'#cccccc')
+    draw.rectangle([(x2,y2),(x3,y3)],'#cccccc')
+    draw.rectangle([(x4,y4),(x5,y5)],'#cccccc')
 
     pass
 
@@ -356,8 +356,8 @@ def get_tile_11(start_x,start_y,draw):
     x5 = start_x + 5
     y5 = y3
 
-    draw.rectangle([(x0,y0),(x1,y1)],'#333333')
-    draw.rectangle([(x2,y2),(x3,y3)],'#333333')
-    draw.rectangle([(x4,y4),(x5,y5)],'#333333')
+    draw.rectangle([(x0,y0),(x1,y1)],'#cccccc')
+    draw.rectangle([(x2,y2),(x3,y3)],'#cccccc')
+    draw.rectangle([(x4,y4),(x5,y5)],'#cccccc')
 
     pass

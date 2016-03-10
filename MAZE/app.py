@@ -52,7 +52,7 @@ def increment_world():
 
     if not ANT_FARM:
         ANT_FARM = antfarm.AntFarm()
-        for x in range(0,5):
+        for x in range(0,10):
             ant = ANT_FARM.Ant()
             DIRS[ant] = {}
     
@@ -63,7 +63,8 @@ def increment_world():
         except KeyError:
             previous = None
         DIRS[ant][COUNTER] = ant.move_ant(previous)
-    
+
+    ANT_FARM.counter += 1
     COUNTER += 1
     
 def threaded_function():   

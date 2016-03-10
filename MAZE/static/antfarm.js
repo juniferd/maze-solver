@@ -1,31 +1,7 @@
 
 var svg = d3.select('#antfarm').insert('svg',':first-child');
 
-/*svg.attr('height',800)
-    .attr('width',800)
-    .append('defs')
-    .append('pattern')
-    .attr('height',800)
-    .attr('width',800)
-    .attr('id','bgmaze')
-    .attr('patternUnits','userSpaceOnUse')
-    .append('image')
-    .attr('xlink:href','/static/img/output.jpg')
-    .attr('x',0)
-    .attr('y',0)
-    .attr('width',800)
-    .attr('height',800);
-
-svg.append('svg:rect')
-    .attr('x',0)
-    .attr('y',0)
-    .attr('width',800)
-    .attr('height',800)
-    .attr('fill','url(#bgmaze)');*/
-
-
-
-var pageCounter = setInterval(getAntBehavior, 1500);
+var pageCounter = setInterval(getAntBehavior, 1100);
 counter = 0;
 
 function getAntBehavior() {
@@ -34,22 +10,50 @@ function getAntBehavior() {
         if (error){
             console.log('error')
         } else {
+
+            var ant = svg.selectAll('.ant')
+                .data(data)
+
+            ant.enter()
+                .append('circle')
+                .attr('class','ant')
+                .attr('r',3)
+                .attr('fill', function(){
+                    var r = parseInt(Math.random() * 255),
+                        g = parseInt(Math.random() * 255),
+                        b = parseInt(Math.random() * 255);
+                    return 'rgb('+r+','+g+','+b+')'
+                })
+
+            ant.transition()
+                .duration(1100)
+                .ease('linear')
+                .attr('cx',function(d){ return (d.pos[0] * 20) + 10})
+                .attr('cy',function(d){ return (d.pos[1] * 20) + 10});
+
+            ant.exit().remove();
             
-                var ant = svg.selectAll('.ant')
-                    .data(data)
+            var marker = svg.selectAll('.nomarker')
+                .data(data);
 
-                ant.enter()
-                    .append('circle')
-                    .attr('class','ant')
-                    .attr('r',2)
-                    .attr('fill','red')
-
-                ant.transition()
-                    .attr('cx',function(d){ return (d.pos[0] * 20) + 10})
-                    .attr('cy',function(d){ return (d.pos[1] * 20) + 10});
-
-                ant.exit().remove();
+            marker.enter()
+                .append('circle')
+                .attr('class','marker')
+                .attr('r',1)
+                .attr('fill','#666666');
             
+            marker.attr('cx',function(d){ 
+                    console.log('marker position: '+d.marker.pos)
+                    if (d.marker.pos != null){
+                        return (d.marker.pos[0] * 20) + 10    
+                    }
+                    
+                }).attr('cy',function(d){ 
+                    if (d.marker.pos != null){
+                        return (d.marker.pos[1] * 20) + 10
+                    }
+                });
+
             counter ++;
         } 
     });
