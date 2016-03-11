@@ -8,7 +8,7 @@ import antfarm
 app = Flask(__name__)
 COUNTER = 0
 ANT_FARM = None
-DIRS = {}
+WORLD = {}
 
 @app.route('/')
 def hello_world():
@@ -32,37 +32,22 @@ def total_ants():
 
 @app.route('/ant/api/v1.0/actions/<int:action_id>', methods=['GET'])
 def get_action(action_id):
-    global DIRS
-    a_val = []
-    for ant in ANT_FARM.ants:
-        try:
-            a_val.append(DIRS[ant][action_id])
-        except KeyError:
-            a_val = None
-            pass
-
-    return json.dumps(a_val)
-
+    global WORLD    
+    return WORLD[action_id]
 
 
 def increment_world():
     global COUNTER
-    global DIRS
+    global WORLD
     global ANT_FARM
 
     if not ANT_FARM:
-        ANT_FARM = antfarm.AntFarm()
-        for x in range(0,10):
-            ant = ANT_FARM.Ant()
-            DIRS[ant] = {}
-    
-    for ant in ANT_FARM.ants:
-        try:
-            previous = DIRS[ant][COUNTER - 1]
-            #print 'ant movement at turn ',COUNTER,': ',previous
-        except KeyError:
-            previous = None
-        DIRS[ant][COUNTER] = ant.move_ant(previous)
+        # populate ant farm
+        ANT_FARM = antfarm.AntFarm()        
+        ANT_FARM.populate_farm()
+        
+    ANT_FARM.run_farm()
+    WORLD[COUNTER] = ANT_FARM.make_json()
 
     ANT_FARM.counter += 1
     COUNTER += 1
