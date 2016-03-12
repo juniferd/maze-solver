@@ -5,7 +5,7 @@ import json
 from random import randint, shuffle
 from math import sqrt
 
-CHEMICAL_STRENGTH = 50
+CHEMICAL_STRENGTH = 25
 
 class AntFarm(object):
     ANT_ID = 0
@@ -15,7 +15,7 @@ class AntFarm(object):
         a_maze.draw_maze()
 
         self.a_maze_map = a_maze.get_maze_map()
-        self.a_goal = a_maze.get_goal()
+        self.a_goal = [a_maze.get_goal()]
         self.a_solution = a_maze.get_solution()
         self.a_connections = a_maze.get_all_neighbors(self.a_maze_map)
         self.counter = 0
@@ -26,6 +26,7 @@ class AntFarm(object):
         self.ants = []
         self.ant_positions = {}
         self.markers = {}
+        self.visited_tiles = {}
 
         image.init(self.a_maze_map,self.a_goal,self.a_solution,False)
 
@@ -40,12 +41,17 @@ class AntFarm(object):
             ant = self.Ant()
 
     def run_farm(self):
+        self.record_visited_tile()
         for ant in self.ants:
             try:
                 current = self.ant_positions[ant]
+                
             except KeyError:
                 current = None
             self.ant_positions[ant] = ant.increment_ant(current)
+        
+        self.reduce_marker_strength()
+
 
     def Ant(self):
         a = Ant(self)
@@ -54,22 +60,38 @@ class AntFarm(object):
         AntFarm.ANT_ID += 1
 
         return a
+    def record_visited_tile(self):
+        for ant in self.ant_positions:
+            pos = self.ant_positions[ant]['pos']
+            self.visited_tiles[str(pos)] = pos
 
     def reduce_marker_strength(self):
-        pass
+        del_keys = []
+        for marker_pos in self.markers:
+            for antid in self.markers[marker_pos]:
+                if self.markers[marker_pos][antid]['strength'] > 0:
+                    self.markers[marker_pos][antid]['strength'] -= 1
+                else:
+                    del_keys.append([marker_pos,antid])
+        for del_key in del_keys:
+            marker_pos = del_key[0]
+            antid = del_key[1]
+            del self.markers[marker_pos][antid]
 
     def leave_marker(self,ant,coord,chemical):
         '''
         {
             (x,y) : {
                 'ant00' : {
+                    'antid' : 'ant00',
                     'counter' : 0,
-                    'marker' : 'search',
+                    'chemical' : 'search',
                     'strength' : 50
                 },
                 'ant01' : {
+                    'antid' : 'ant01',
                     'counter' : 1,
-                    'marker' : 'food',
+                    'chemical' : 'food',
                     'strength' : 50
                 }
             }
@@ -82,14 +104,14 @@ class AntFarm(object):
         if self not in self.markers[str_coord]:
             self.markers[str_coord][ant.id] = {}
 
+        self.markers[str_coord][ant.id]['antid'] = ant.id
         self.markers[str_coord][ant.id]['pos'] = coord
         self.markers[str_coord][ant.id]['counter'] = self.counter
-        self.markers[str_coord][ant.id]['marker'] = chemical
+        self.markers[str_coord][ant.id]['chemical'] = chemical
         self.markers[str_coord][ant.id]['strength'] = CHEMICAL_STRENGTH
-        #print 'leave marker at ',coord,': ',self.markers[coord][ant]['counter']
         
     def get_markers(self,coord):
-        #print 'get marker at ',coord
+        
         str_coord = str(coord)
         try:
             markers = self.markers[str_coord]
@@ -101,11 +123,15 @@ class AntFarm(object):
         ants = []
         for ant in self.ant_positions:
             ants.append(self.ant_positions[ant])
-
+        visited_tiles = []
+        for tile in self.visited_tiles:
+            visited_tiles.append(self.visited_tiles[tile])
 
         ret = {
             'ants' : ants,
-            'markers' : self.markers
+            'markers' : self.markers,
+            'visited' : visited_tiles,
+            'food' : self.a_goal
         }
         
         return json.dumps(ret)
@@ -153,18 +179,21 @@ class Ant(object):
                     if markers != None:
                         # loop through each of the markers
                         for antid in markers:
-                            
                             # is it food?
-                            if markers[antid]['marker'] == 'food':
+                            if markers[antid]['chemical'] == 'food':
                             #    options = [neighbor]
                             #    break
                                 print 'found food path'
-                            # is it this ant's marker?
-                            elif antid == self.id:
-
-                                options.remove(neighbor)
-                                this_counter = markers[antid]['counter']
-                                counter_dict[this_counter] = neighbor
+                            
+                            else:
+                                try:
+                                    options.remove(neighbor)
+                                except ValueError:
+                                    pass
+                                # is it this ant's marker?
+                                if antid == self.id:
+                                    this_counter = markers[antid]['counter']
+                                    counter_dict[this_counter] = neighbor
                 except AttributeError:
                     print 'PASS'
                     pass
@@ -184,12 +213,10 @@ class Ant(object):
             x = randint(0,n)
             y = randint(0,n)
             new_position = (x,y)
-            marker_pos = None
-            marker_type = 'search'
             ant_mode = 'searching'
 
         ant = {
-            
+            'antid' : self.id,
             'mode' : ant_mode,
             'pos' : new_position
         }

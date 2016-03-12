@@ -27,13 +27,23 @@
     width: 800px;
     height: 800px;
 }
-#ant {
-    display: block;
-    width: 4px;
-    height: 2px;
-    border-radius: 2px;
-    background: red;
-    position: absolute;
-    left: 0;
-    top: 0;
+
+
+@-webkit-keyframes pulse {
+    0% { -webkit-transform: scale(1); }
+    50% { -webkit-transform: scale(1.01); }
+    100% { -webkit-transform: scale(1); }
+}
+@keyframes pulse {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.01); }
+    100% { transform: scale(1); }
+}
+.pulse {
+    -webkit-animation-name: pulse;
+    animation-name: pulse;
+    -webkit-animation-duration: 1s;
+    animation-duration: 1s;
+    -webkit-animation-iteration-count: infinite;
+    animation-iteration-count: infinite;
 }
