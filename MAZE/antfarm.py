@@ -11,7 +11,7 @@ class AntFarm(object):
     ANT_ID = 0
 
     def __init__(self):
-        a_maze = draw.Maze(40)
+        a_maze = draw.Maze(10)
         a_maze.draw_maze()
 
         self.a_maze_map = a_maze.get_maze_map()
@@ -19,10 +19,11 @@ class AntFarm(object):
         self.a_solution = a_maze.get_solution()
         self.a_connections = a_maze.get_all_neighbors(self.a_maze_map)
         self.counter = 0
-        self.a_maze = a_maze
-        #for connection in self.a_connections:
-        #    print 'connection: ',connection,
-        #    print ', ',self.a_connections[connection]
+        
+
+        self.a_maze = {str(k) :[tuple(i) for i in v] for k,v in self.a_connections.items()}
+        
+            
         self.ants = []
         self.ant_positions = {}
         self.markers = {}
@@ -131,7 +132,8 @@ class AntFarm(object):
             'ants' : ants,
             'markers' : self.markers,
             'visited' : visited_tiles,
-            'food' : self.a_goal
+            'food' : self.a_goal,
+            'maze' : self.a_maze
         }
         
         return json.dumps(ret)
@@ -140,8 +142,84 @@ class Ant(object):
     def __init__(self,farm):
         print 'make an ant'
         self.farm = farm
+    
+    def explore(self,coord,neighbors):
+        self.leave_chemical(coord)
+        ant_mode = 'explore'
+        # need to figure out which of these coordinates to take
+        # in order of preference:
+        # 1. path to food (aka chemical marker)
+        # 2. not a direction i've already been in
+        options = list(neighbors)
+        counter_dict = {}
+        for neighbor in neighbors:
+            # does the next room have food?
+            if neighbor == self.farm.a_goal[0]:
+                options = [neighbor]
+                print 'found food source'
+                ant_mode = 'find exit'
+                break
+            try:
+                markers = self.farm.get_markers(neighbor)
+                if markers != None:
+                    # loop through each of the markers
+                    for antid in markers:
+                        # is it food?
+                        if markers[antid]['chemical'] == 'food':
+                            options = [neighbor]
+                            print 'found food path'
+                            ant_mode = 'retrieve food'
+                            break
+                        else:
+                            try:
+                                options.remove(neighbor)
+                            except ValueError:
+                                pass
+                            # is it this ant's marker?
+                            if antid == self.id:
+                                this_counter = markers[antid]['counter']
+                                counter_dict[this_counter] = neighbor
+            except AttributeError:
+                print 'PASS'
+                pass
+        
+        #print 'possible options: ',options
+        
+        l = len(options)
+        if l > 0:
+            r = randint(0,l-1)
+            new_position = options[r]
+        else:
+        # has ant already tried all options? pick option with lowest counter
+            new_position = counter_dict[min(counter_dict)]
 
+        return new_position, ant_mode
+
+    def find_exit(self,coord,neighbors):
+        new_position = coord
+        ant_mode = 'find exit'
+
+
+        return new_position, ant_mode
+
+    def retrieve_food(self):
+        pass
+
+    def leave_chemical(self,coord):
+        # leave a chemical marker
+        marker_pos = coord
+        # is this coordinate where "food" is located?
+        if marker_pos == self.farm.a_goal:
+            marker_type = 'food'
+        else:
+            marker_type = 'search'
+        
+        self.farm.leave_marker(self,marker_pos,marker_type)
+    
     def increment_ant(self,previous):
+        '''
+        ant modes include 'explore','find exit','retrieve food'
+        '''
         maze_map = self.farm.a_maze_map
         connections = self.farm.a_connections
 
@@ -149,63 +227,14 @@ class Ant(object):
             
             coord = previous['pos']
             ant_mode = previous['mode']
-
-            # leave a chemical marker
-            marker_pos = coord
-            # is this coordinate where "food" is located?
-            if marker_pos == self.farm.a_goal:
-                marker_type = 'food'
-            else:
-                marker_type = 'search'
-            
-            previous_marker = self.farm.leave_marker(self,marker_pos,marker_type)            
-
             neighbors = connections[coord]
-            #print ', neighbors: ',neighbors
 
-            # need to figure out which of these coordinates to take
-            # in order of preference:
-            # 1. path to food (aka chemical marker)
-            # 2. not a direction i've already been in
-            options = list(neighbors)
-            counter_dict = {}
-            for neighbor in neighbors:
-                # does the next room have food?
-                #if neighbor == self.farm.a_goal:
-                #    options = [neighbor]
-                #    break
-                try:
-                    markers = self.farm.get_markers(neighbor)
-                    if markers != None:
-                        # loop through each of the markers
-                        for antid in markers:
-                            # is it food?
-                            if markers[antid]['chemical'] == 'food':
-                            #    options = [neighbor]
-                            #    break
-                                print 'found food path'
-                            
-                            else:
-                                try:
-                                    options.remove(neighbor)
-                                except ValueError:
-                                    pass
-                                # is it this ant's marker?
-                                if antid == self.id:
-                                    this_counter = markers[antid]['counter']
-                                    counter_dict[this_counter] = neighbor
-                except AttributeError:
-                    print 'PASS'
-                    pass
-            #print 'possible options: ',options
-            
-            l = len(options)
-            if l > 0:
-                r = randint(0,l-1)
-                new_position = options[r]
-            else:
-            # has ant already tried all options? pick option with lowest counter
-                new_position = counter_dict[min(counter_dict)]
+            if ant_mode == 'explore':
+                new_position, ant_mode = self.explore(coord,neighbors)
+            elif ant_mode == 'find exit':
+                new_position, ant_mode = self.find_exit(coord,neighbors)
+
+            print 'ant mode ',self.id,': ',ant_mode
         else:
             # spawn the ants randomly on the maze
             maze_len = len(maze_map)
@@ -213,7 +242,7 @@ class Ant(object):
             x = randint(0,n)
             y = randint(0,n)
             new_position = (x,y)
-            ant_mode = 'searching'
+            ant_mode = 'explore'
 
         ant = {
             'antid' : self.id,

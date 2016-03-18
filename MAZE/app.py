@@ -9,20 +9,17 @@ app = Flask(__name__)
 COUNTER = 0
 ANT_FARM = None
 WORLD = {}
+CLIENT_COUNTER = 0
 
 @app.route('/')
-def hello_world():
-    return "hello world"
-
-@app.route('/hello/')
-@app.route('/hello/<num>')
-def hello(num=None):
+@app.route('/<num>')
+def ant_maze(num=None):
     global ANT_FARM
 
     if not ANT_FARM:
         ANT_FARM = antfarm.AntFarm()
 
-    return render_template('hello.html', num=num)
+    return render_template('maze.html', num=num)
 
 @app.route('/ant/api/v1.0/total-ants/', methods=['GET'])
 def total_ants():
@@ -32,25 +29,32 @@ def total_ants():
 
 @app.route('/ant/api/v1.0/actions/<int:action_id>', methods=['GET'])
 def get_action(action_id):
-    global WORLD    
-    return WORLD[action_id]
+    global WORLD
+    global CLIENT_COUNTER
 
+    if action_id > CLIENT_COUNTER:
+        CLIENT_COUNTER = action_id
+
+    return WORLD[action_id]
 
 def increment_world():
     global COUNTER
     global WORLD
     global ANT_FARM
+    global CLIENT_COUNTER
 
     if not ANT_FARM:
         # populate ant farm
         ANT_FARM = antfarm.AntFarm()        
         ANT_FARM.populate_farm()
-        
-    ANT_FARM.run_farm()
-    WORLD[COUNTER] = ANT_FARM.make_json()
+    
+    # only do work on the server 10 moves ahead of client
+    if COUNTER <= 10 + CLIENT_COUNTER:
+        ANT_FARM.run_farm()
+        WORLD[COUNTER] = ANT_FARM.make_json()
 
-    ANT_FARM.counter += 1
-    COUNTER += 1
+        ANT_FARM.counter += 1
+        COUNTER += 1
     
 def threaded_function():   
     increment_world()

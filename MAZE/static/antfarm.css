@@ -9,7 +9,7 @@
 
 #antfarm{
     display: block;
-    width: 800px;
+    width: 960px;
     height: 800px;
     position: relative;
 }
@@ -24,7 +24,7 @@
     left: 0;
     top: 0;
     z-index: 10;
-    width: 800px;
+    width: 960px;
     height: 800px;
 }
 

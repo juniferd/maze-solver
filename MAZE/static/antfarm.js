@@ -118,6 +118,24 @@ function incrementWorld() {
                     }
                 });
 
+            var dataText = [Object.keys(data.visited).length]
+            var totalRooms = Object.keys(data.maze).length
+
+            var textVisited = svg.selectAll('text')
+                .data(dataText);
+
+            textVisited.enter()
+                .append('text')
+                .attr('x',820)
+                .attr('y',20)
+
+            textVisited.text(function(d){
+                var percentage = parseInt(parseInt(d) / parseInt(totalRooms) * 100)
+                return 'explored: '+percentage+'%'
+            });
+
+            textVisited.exit().remove();
+
             var food = svg.selectAll('.food')
                 .data(data.food);
 
