@@ -13,7 +13,8 @@ function incrementWorld() {
             console.log('error')
         } else {
             //console.log('data: '+JSON.stringify(data))
-            
+            console.log(JSON.stringify(data.markers))
+
             var ant = svg.selectAll('.ant')
                 .data(data.ants)
 
@@ -41,7 +42,7 @@ function incrementWorld() {
                 .attr('cx',function(d){ return (d.pos[0] * 20) + 10})
                 .attr('cy',function(d){ return (d.pos[1] * 20) + 10})
                 .attr('r',3)
-                .each('end',pulse);
+                /*.each('end',pulse);*/
 
             ant.exit().remove();
             
@@ -92,7 +93,14 @@ function incrementWorld() {
                     }
                 }).attr('fill',function(d){
                     if (d != null){
-                        return antColors[d.antid]
+                        if (d.chemical == 'food'){
+                            return 'red'
+                        } else if (d.chemical == 'exit') {
+                            return '#333333'
+                        } else {
+                            return antColors[d.antid]
+                        }
+                        
                     }
                 }).attr('fill-opacity',0.5);
 
@@ -135,6 +143,29 @@ function incrementWorld() {
             });
 
             textVisited.exit().remove();
+
+            var antText = svg.selectAll('g.ant-container')
+                .data(data.ants)
+
+            antText.enter()
+                .append('g')
+                .attr('class','ant-container')
+                .attr('transform', function(d,i){
+                    num = 40 + (20 * i)
+                    return 'translate(820,'+ num +')'
+                }).attr('font-size','12');
+            antText.append('text')
+                .text(function(d){
+                    var antName = d.antid
+                    var antMode = d.mode
+                    var hasFood = ''
+                    if (d.has_food){
+                        hasFood = ' (has food)'
+                    }
+                    return antName+': '+antMode+hasFood
+                }).attr('fill',function(d){
+                    return antColors[d.antid]
+                });
 
             var food = svg.selectAll('.food')
                 .data(data.food);

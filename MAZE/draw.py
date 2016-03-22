@@ -486,6 +486,44 @@ class Maze(object):
     def get_solution(self):
         return self.__solution
 
+    def get_exits(self):
+        edges = {}
+        exits = {}
+        n = int(sqrt(len(self.__maze))) - 1
+        for (x,y) in self.__maze:
+            if x == 0:
+                edges[(x,y)] = self.__maze[(x,y)]
+            elif x == n:
+                edges[(x,y)] = self.__maze[(x,y)]
+            elif y == 0:
+                edges[(x,y)] = self.__maze[(x,y)]
+            elif y == n:
+                edges[(x,y)] = self.__maze[(x,y)]
+
+        for (x,y) in edges:
+            coord = (x,y)
+            sym = edges[coord]
+            dirs = SYMBOL_MAP[sym]
+            
+            if x == 0:
+            # test left in left edge
+                if 'left' in dirs:
+                    exits[coord] = sym
+            elif x == n:
+            # test right in right edge
+                if 'right' in dirs:
+                    exits[coord] = sym
+            if y == 0:
+            # test up in top edge
+                if 'up' in dirs:
+                    exits[coord] = sym
+            elif y == n:
+            # test down in bottom edge
+                if 'down' in dirs:
+                    exits[coord] = sym
+
+        return exits
+
     ## draw a maze
     def draw_maze(self):
         n = int(sqrt(len(self.__maze)))
