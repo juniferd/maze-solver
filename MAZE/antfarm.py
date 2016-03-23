@@ -7,6 +7,7 @@ from math import sqrt
 from collections import defaultdict
 
 CHEMICAL_STRENGTH = 25
+FOOD = 25
 
 class AntFarm(object):
     ANT_ID = 0
@@ -22,7 +23,8 @@ class AntFarm(object):
         self.counter = 0
         self.a_exits = a_maze.get_exits()
         self.a_maze = {str(k) :[tuple(i) for i in v] for k,v in self.a_connections.items()}
-        
+        self.a_food_exits = {}
+        self.a_food = FOOD
             
         self.ants = []
         self.ant_positions = {}
@@ -66,6 +68,28 @@ class AntFarm(object):
             pos = self.ant_positions[ant]['pos']
             self.visited_tiles[str(pos)] = pos
 
+    def drop_new_food(self):
+        # remove existing goal
+        self.a_goal.pop(0)
+        # create new goal
+        new_goal = self.create_new_goal()
+        self.a_goal.append(new_goal)
+        # reset amount of food at goal
+        self.a_food = FOOD
+
+    def create_new_goal(self):
+        dict_keys = list(self.a_maze_map.keys())
+        r = randint(0,len(dict_keys)-1)
+        new_goal = dict_keys[r]
+        print 'NEW GOAL: ',new_goal
+        return new_goal
+
+    def reduce_food(self):
+        if self.a_food > 0:
+            self.a_food -= 1
+        else:
+            self.drop_new_food()
+
     def reduce_marker_strength(self):
         del_keys = []
         for marker_pos in self.markers:
@@ -79,25 +103,23 @@ class AntFarm(object):
             antid = del_key[1]
             del self.markers[marker_pos][antid]
 
-    def leave_marker(self,ant,coord,chemical,dist_food,dist_exit,strength=CHEMICAL_STRENGTH):
+    def leave_marker(self,ant,coord,chemical,dist,strength=CHEMICAL_STRENGTH):
         '''
         {
             (x,y) : {
                 'ant00' : {
                     'antid' : 'ant00',
-                    'counter' : 0,
+                    
                     'chemical' : 'search',
                     'strength' : 50,
-                    'dist_food' : 25,
-                    'dist_exit' : None
+                    'dist' : None
                 },
                 'ant01' : {
                     'antid' : 'ant01',
-                    'counter' : 1,
+                    
                     'chemical' : 'food',
                     'strength' : 50,
-                    'dist_food' : 31,
-                    'dist_exit' : 20
+                    'dist' : 31
                 }
             }
             
@@ -111,11 +133,10 @@ class AntFarm(object):
 
         self.markers[str_coord][ant.id]['antid'] = ant.id
         self.markers[str_coord][ant.id]['pos'] = coord
-        self.markers[str_coord][ant.id]['counter'] = self.counter
+        
         self.markers[str_coord][ant.id]['chemical'] = chemical
         self.markers[str_coord][ant.id]['strength'] = strength
-        self.markers[str_coord][ant.id]['dist_food'] = dist_food
-        self.markers[str_coord][ant.id]['dist_exit'] = dist_exit
+        self.markers[str_coord][ant.id]['dist'] = dist
         
     def get_markers(self,coord):
         
@@ -149,32 +170,25 @@ class Ant(object):
         print 'make an ant'
         self.farm = farm
 
-    def get_min_dist(self,neighbors):
-        dists_food = []
-        dists_exit = []
+    def get_min_dist(self,neighbors,chemical):
+        dists = []
 
         for neighbor in neighbors:
             
             markers = self.farm.get_markers(neighbor)
             if markers != None:
                 for antid in markers:
-                    dist_food = markers[antid]['dist_food']
-                    dist_exit = markers[antid]['dist_exit']
-                    if dist_food != None:
-                        dists_food.append(dist_food)
-                    if dist_exit != None:
-                        dists_exit.append(dist_exit)
+                    if markers[antid]['chemical'] == chemical:
+                        dist = markers[antid]['dist']
+                        if dist != None:
+                            dists.append(dist)
        
         try:
-            dist_food = min(dists_food) + 1
+            min_dist = min(dists) + 1
         except ValueError:
-            dist_food = None
-        try:
-            dist_exit = min(dists_exit) + 1
-        except ValueError:
-            dist_exit = None
+            min_dist = None
 
-        return dist_food,dist_exit
+        return min_dist
 
     # TODO: BREAK THIS DOWN!!!
 
@@ -226,7 +240,7 @@ class Ant(object):
                                 options.remove(neighbor)
                             except ValueError:
                                 pass
-                            this_counter = markers[antid]['counter']
+                            this_counter = markers[antid]['strength']
                             counter_dict[this_counter] = neighbor
             except AttributeError:
                 print 'PASS: no markers'
@@ -250,17 +264,17 @@ class Ant(object):
         connections = self.farm.a_connections
         coord = previous['pos']
         neighbors = connections[coord]
-        dist_food,dist_exit = self.get_min_dist(neighbors)
+        dist_exit = self.get_min_dist(neighbors,'exit')
         new_position = coord
         ant_mode = 'find food'
         has_food = previous['has_food']
         exits = self.farm.a_exits
         
         if coord in exits:
-            self.leave_chemical(coord,'exit',None,0)
+            self.leave_chemical(coord,'exit',0)
             has_food = False
         else:
-            self.leave_chemical(coord,'exit',dist_food,dist_exit)
+            self.leave_chemical(coord,'exit',dist_exit)
 
         options = list(neighbors)
         counter_dict = {}
@@ -293,7 +307,7 @@ class Ant(object):
                         except ValueError:
                             pass
 
-                        this_counter = markers[antid]['counter']
+                        this_counter = markers[antid]['strength']
                         counter_dict[this_counter] = neighbor
 
             except AttributeError:
@@ -322,7 +336,7 @@ class Ant(object):
         coord = previous['pos']
         neighbors = connections[coord]
 
-        dist_food,dist_exit = self.get_min_dist(neighbors)
+        dist_food = self.get_min_dist(neighbors,'food')
 
         new_position = coord
         ant_mode = 'find exit'
@@ -331,10 +345,10 @@ class Ant(object):
         exits = self.farm.a_exits
         
         if coord == self.farm.a_goal[0]:
-            self.leave_chemical(coord,'food',0,None)
+            self.leave_chemical(coord,'food',0)
             has_food = True
         else:
-            self.leave_chemical(coord,'food',dist_food,dist_exit)
+            self.leave_chemical(coord,'food',dist_food)
         
         options = list(neighbors)
         counter_dict = {}
@@ -368,7 +382,7 @@ class Ant(object):
                                 options.remove(neighbor)
                             except ValueError:
                                 pass
-                        this_counter = markers[antid]['counter']
+                        this_counter = markers[antid]['strength']
                         counter_dict[this_counter] = neighbor
 
             except AttributeError:
@@ -395,7 +409,8 @@ class Ant(object):
         new_position = coord
         ant_mode = 'retrieve food'
         has_food = previous['has_food']
-        dist_food,dist_exit = self.get_min_dist(neighbors)
+        dist_food = self.get_min_dist(neighbors,'food')
+        dist_exit = self.get_min_dist(neighbors,'exit')
         exits = self.farm.a_exits
 
         exit_dict = {}
@@ -427,11 +442,11 @@ class Ant(object):
                     for antid in markers:
                         # does one of these have an 'exit' marker?
                         if markers[antid]['chemical'] == 'exit':
-                            this_dist = markers[antid]['dist_exit']
+                            this_dist = markers[antid]['dist']
                             exit_dict[this_dist] = neighbor
                             exits_count[neighbor] += 1
                         if markers[antid]['chemical'] == 'food':
-                            this_dist = markers[antid]['dist_food']
+                            this_dist = markers[antid]['dist']
                             food_dict[this_dist] = neighbor
                             foods_count[neighbor] += 1
                         if antid == self.id:
@@ -439,7 +454,7 @@ class Ant(object):
                                 options.remove(neighbor)
                             except ValueError:
                                 pass
-                        this_counter = markers[antid]['counter']
+                        this_counter = markers[antid]['strength']
                         counter_dict[this_counter] = neighbor
 
             except AttributeError:
@@ -449,9 +464,9 @@ class Ant(object):
         # if ant has food, go toward exit
         if has_food:
             if coord == self.farm.a_goal[0]:
-                self.leave_chemical(coord,'food',0,None)
+                self.leave_chemical(coord,'food',0)
             else:
-                self.leave_chemical(coord,'food',dist_food,dist_exit)
+                self.leave_chemical(coord,'food',dist_food)
             print 'go to exit',
             # look for markers that point to exit
             # if no markers point to an exit, retrace 'food' path toward weakest 'food' marker
@@ -485,9 +500,9 @@ class Ant(object):
         # if ant does not have food, go toward food
         else:
             if coord in exits:
-                self.leave_chemical(coord,'exit',None,0)
+                self.leave_chemical(coord,'exit',0)
             else:
-                self.leave_chemical(coord,'exit',dist_food,dist_exit)
+                self.leave_chemical(coord,'exit',dist_exit)
             print 'go to food',
             # is the next square food?
             if next_food != None:
@@ -517,7 +532,7 @@ class Ant(object):
         return new_position, ant_mode, has_food
 
 
-    def leave_chemical(self,coord,chemical,dist_food=None,dist_exit=None):
+    def leave_chemical(self,coord,chemical,dist=None):
         # leave a chemical marker
         marker_pos = coord
         marker_type = chemical
@@ -528,7 +543,7 @@ class Ant(object):
         elif marker_type == 'food':
             marker_strength = CHEMICAL_STRENGTH * 10
         
-        self.farm.leave_marker(self,marker_pos,marker_type,dist_food,dist_exit,marker_strength)
+        self.farm.leave_marker(self,marker_pos,marker_type,dist,marker_strength)
     
     def increment_ant(self,previous):
         '''

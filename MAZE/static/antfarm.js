@@ -6,6 +6,28 @@ var pageCounter = setInterval(incrementWorld, TURN_SPEED);
 counter = 0;
 var antColors = {}
 
+var antNames = ['picard','riker','la forge','worf','crusher','troi','data','wesley','o\'brien','guinan','q']
+var antIds = {}
+
+function shuffle(a) {
+    var j, x, i;
+    for (i = a.length; i; i -= 1) {
+        j = Math.floor(Math.random() * i);
+        x = a[i - 1];
+        a[i - 1] = a[j];
+        a[j] = x;
+    }
+}
+
+function setAntName(antid){
+    if (!(antid in antIds)){
+        shuffle(antNames)
+        var thisName = antNames[0]
+        antIds[antid] = thisName
+        antNames.shift()
+    }
+}
+
 function incrementWorld() {
     var url = '/ant/api/v1.0/actions/' + counter;
     var result = d3.json(url, function(error,data){
@@ -13,19 +35,16 @@ function incrementWorld() {
             console.log('error')
         } else {
             //console.log('data: '+JSON.stringify(data))
-            console.log(JSON.stringify(data.markers))
 
-            var ant = svg.selectAll('.ant')
+            var dataCopyAnts = JSON.parse(JSON.stringify(data.ants))
+
+            var ant = svg.selectAll('g.ant')
                 .data(data.ants)
 
-            ant.enter()
-                .append('circle')
+            var antGroup = ant.enter().append('g')
+            
+            antGroup
                 .attr('class','ant')
-                .attr('id', function(d){
-                    id = d.antid
-                    return id
-                })
-                .attr('r',3)
                 .attr('fill', function(d){
                     var r = parseInt(Math.random() * 255),
                         g = parseInt(Math.random() * 255),
@@ -34,21 +53,52 @@ function incrementWorld() {
 
                     antColors[d.antid] = rgb;
                     return rgb;
-                });
+                })
+                .attr('fill-opacity',0)
+                .attr('transform',function(d){ 
+                    x = (d.pos[0] * 20) + 10
+                    y = (d.pos[1] * 20) + 10
+                    return 'translate('+x+','+y+')'
+                })
+                    .append('circle')
+                    .attr('class','_ant')
+                    .attr('id', function(d){
+                        id = d.antid
+                        return id
+                    })
+                    .attr('r',3)
             
+            antGroup.append('text')
+                .text('test')
+                .attr('class','text-food')
+                .attr('font-size','12')
+
             ant.transition()
                 .duration(TURN_SPEED)
                 .ease('linear')
-                .attr('cx',function(d){ return (d.pos[0] * 20) + 10})
-                .attr('cy',function(d){ return (d.pos[1] * 20) + 10})
-                .attr('r',3)
-                /*.each('end',pulse);*/
+                .attr('transform',function(d){ 
+                    
+                    x = (d.pos[0] * 20) + 10
+                    y = (d.pos[1] * 20) + 10
+                    return 'translate('+x+','+y+')'
+                })
+                .attr('fill-opacity',1)
+                .select('text.text-food')
+                    .text(function(d) {
+                        var star = '\u2605'
+                        setAntName(d.antid)
+                        var name = antIds[d.antid]
+                        if (d.has_food){
+                            return name+' '+star
+                        } else {
+                            return name
+                        }
+                        
+                    })
+
 
             ant.exit().remove();
             
-            function pulse() {
-                ant.attr('r',4)
-            }
 
             var markers = []
             
@@ -129,11 +179,12 @@ function incrementWorld() {
             var dataText = [Object.keys(data.visited).length]
             var totalRooms = Object.keys(data.maze).length
 
-            var textVisited = svg.selectAll('text')
+            var textVisited = svg.selectAll('text.text-visited')
                 .data(dataText);
 
             textVisited.enter()
                 .append('text')
+                .attr('class','text-visited')
                 .attr('x',820)
                 .attr('y',20)
 
@@ -144,28 +195,30 @@ function incrementWorld() {
 
             textVisited.exit().remove();
 
-            var antText = svg.selectAll('g.ant-container')
-                .data(data.ants)
-
+            var antText = svg.selectAll('text.side')
+                .data(dataCopyAnts)
+            
             antText.enter()
-                .append('g')
-                .attr('class','ant-container')
+                .append('text')
+                .attr('class','side')
                 .attr('transform', function(d,i){
                     num = 40 + (20 * i)
                     return 'translate(820,'+ num +')'
-                }).attr('font-size','12');
-            antText.append('text')
-                .text(function(d){
-                    var antName = d.antid
+                }).attr('font-size','12')
+                .attr('fill',function(d){
+                    return antColors[d.antid]
+                })
+
+            antText.text(function(d){
+                    var antName = antIds[d.antid]
                     var antMode = d.mode
                     var hasFood = ''
                     if (d.has_food){
-                        hasFood = ' (has food)'
+                        hasFood = ' \u2605'
                     }
                     return antName+': '+antMode+hasFood
-                }).attr('fill',function(d){
-                    return antColors[d.antid]
                 });
+            antText.exit().remove();            
 
             var food = svg.selectAll('.food')
                 .data(data.food);
@@ -185,6 +238,8 @@ function incrementWorld() {
                 .attr('height',10)
                 .attr('fill','red')
                 .attr('fill-opacity',0.25)
+
+            food.exit().remove();
             counter ++;
         } 
     });
