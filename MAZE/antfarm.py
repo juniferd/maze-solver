@@ -190,347 +190,33 @@ class Ant(object):
 
         return min_dist
 
-    # TODO: BREAK THIS DOWN!!!
-
-    def explore(self,previous):
-        connections = self.farm.a_connections
-        coord = previous['pos']
-        neighbors = connections[coord]
-        new_position = coord
-        ant_mode = 'explore'
-        has_food = False
-        exits = self.farm.a_exits
-
-        self.leave_chemical(coord,'search')
+    def get_popular_coord(self,dist_dict,counts_dict):
+        combo = {}
+        min_dist = {}
         
-        # need to figure out which of these coordinates to take
-        # in order of preference:
-        # 1. path to food (aka chemical marker)
-        # 2. not a direction any ant has already been in
-        options = list(neighbors)
-        counter_dict = {}
-        for neighbor in neighbors:
-            # does the next room have food?
-            if neighbor == self.farm.a_goal[0]:
-                options = [neighbor]
-                print 'found food source'
-                ant_mode = 'find exit'
-                has_food = True
-                break
-            # is the next room an exit?
-            elif neighbor in exits:
-                options = [neighbor]
-                print 'found an exit'
-                ant_mode = 'find food'
-                break
-            
-            try:
-                markers = self.farm.get_markers(neighbor)
-                if markers != None:
-                    # loop through each of the markers
-                    for antid in markers:
-                        # is it food?
-                        if markers[antid]['chemical'] == 'food':
-                            options = [neighbor]
-                            print 'found food path'
-                            ant_mode = 'retrieve food'
-                            break
-                        else:
-                            try:
-                                options.remove(neighbor)
-                            except ValueError:
-                                pass
-                            this_counter = markers[antid]['strength']
-                            counter_dict[this_counter] = neighbor
-            except AttributeError:
-                print 'PASS: no markers'
-                pass
-            
-
-        #print 'possible options: ',options
-        
-        l = len(options)
-        if l > 0:
-            r = randint(0,l-1)
-            new_position = options[r]
-        else:
-        # has ant already tried all options? pick option with lowest counter
-            new_position = counter_dict[min(counter_dict)]
-
-        return new_position, ant_mode, has_food
-
-    def find_food(self,previous):
-        # this should only happen if an ant finds an exit before it finds food
-        connections = self.farm.a_connections
-        coord = previous['pos']
-        neighbors = connections[coord]
-        dist_exit = self.get_min_dist(neighbors,'exit')
-        new_position = coord
-        ant_mode = 'find food'
-        has_food = previous['has_food']
-        exits = self.farm.a_exits
-        
-        if coord in exits:
-            self.leave_chemical(coord,'exit',0)
-            has_food = False
-        else:
-            self.leave_chemical(coord,'exit',dist_exit)
-
-        options = list(neighbors)
-        counter_dict = {}
-        for neighbor in neighbors:
-            # does the next room have food?
-            if neighbor == self.farm.a_goal[0]:
-                options = [neighbor]
-                print 'found food'
-                ant_mode = 'retrieve food'
-                has_food = True
-                
-                break
-            try:
-                markers = self.farm.get_markers(neighbor)
-                
-                if markers != None:
-                    # loop through each of the markers
-                    for antid in markers:
-                        # is it food?
-                        if markers[antid]['chemical'] == 'food':
-                            options = [neighbor]
-                            print 'found food path'
-                            ant_mode = 'retrieve food'
-                            has_food = False
-                            
-                            break
-
-                        try:
-                            options.remove(neighbor)
-                        except ValueError:
-                            pass
-
-                        this_counter = markers[antid]['strength']
-                        counter_dict[this_counter] = neighbor
-
-            except AttributeError:
-                print 'PASS: no markers'
-                pass
-        
-        #print 'possible options: ',options
-        
-        l = len(options)
-        if l > 0:
-            print 'find food random options'
-            r = randint(0,l-1)
-            new_position = options[r]
-        else:
-            print 'find food min counter'
-        # has ant already tried all options? pick option with lowest counter
-            new_position = counter_dict[min(counter_dict)]
-
-        return new_position,ant_mode,has_food
-
-    def find_exit(self,previous):
-        # 'find exit' behavior is like 'explore'
-        # this should only happen if an ant finds food before it finds an exit
-
-        connections = self.farm.a_connections
-        coord = previous['pos']
-        neighbors = connections[coord]
-
-        dist_food = self.get_min_dist(neighbors,'food')
-
-        new_position = coord
-        ant_mode = 'find exit'
-        has_food = previous['has_food']
-        
-        exits = self.farm.a_exits
-        
-        if coord == self.farm.a_goal[0]:
-            self.leave_chemical(coord,'food',0)
-            has_food = True
-        else:
-            self.leave_chemical(coord,'food',dist_food)
-        
-        options = list(neighbors)
-        counter_dict = {}
-        for neighbor in neighbors:
-            # first see if any of these are exits
-            if neighbor in exits:
-                options = [neighbor]
-                print 'found exit'
-                ant_mode = 'retrieve food'
-                has_food = False
-                
-                break
-            try:
-                markers = self.farm.get_markers(neighbor)
-                
-                if markers != None:
-
-                    # loop through each of the markers
-                    for antid in markers:
-                        # is it exit?
-                        if markers[antid]['chemical'] == 'exit':
-                            options = [neighbor]
-                            print 'found exit path'
-                            ant_mode = 'retrieve food'
-                            has_food = True
-                            
-                            break
-                        # is it this ant's marker?
-                        if antid == self.id:
-                            try:
-                                options.remove(neighbor)
-                            except ValueError:
-                                pass
-                        this_counter = markers[antid]['strength']
-                        counter_dict[this_counter] = neighbor
-
-            except AttributeError:
-                print 'PASS: no markers'
-                pass
-        
-        #print 'possible options: ',options
-        
-        l = len(options)
-        if l > 0:
-            r = randint(0,l-1)
-            new_position = options[r]
-        else:
-        # has ant already tried all options? pick option with lowest counter
-            new_position = counter_dict[min(counter_dict)]
-
-
-        return new_position, ant_mode, has_food
-
-    def retrieve_food(self,previous):
-        connections = self.farm.a_connections
-        coord = previous['pos']
-        neighbors = connections[coord]
-        new_position = coord
-        ant_mode = 'retrieve food'
-        has_food = previous['has_food']
-        dist_food = self.get_min_dist(neighbors,'food')
-        dist_exit = self.get_min_dist(neighbors,'exit')
-        exits = self.farm.a_exits
-
-        exit_dict = {}
-        food_dict = {}
-        counter_dict = {}
-        next_exit = None
-        next_food = None
-        options = list(neighbors)
-        exits_count = defaultdict(int)
-        foods_count = defaultdict(int)
-        for neighbor in neighbors:
-            # is neighbor food?
-            
-            if neighbor == self.farm.a_goal[0]:
-                print 'neighbor is food!'
-                next_food = neighbor
-                dist_food = 0
-            # is neighbor exit?
-            if neighbor in exits:
-                print 'neighbor is exit!'
-                next_exit = neighbor
-                dist_exit = 0
-            try:
-                markers = self.farm.get_markers(neighbor)
-                
-                if markers != None:
-                    # loop through each of the markers
-                    
-                    for antid in markers:
-                        # does one of these have an 'exit' marker?
-                        if markers[antid]['chemical'] == 'exit':
-                            this_dist = markers[antid]['dist']
-                            exit_dict[this_dist] = neighbor
-                            exits_count[neighbor] += 1
-                        if markers[antid]['chemical'] == 'food':
-                            this_dist = markers[antid]['dist']
-                            food_dict[this_dist] = neighbor
-                            foods_count[neighbor] += 1
-                        if antid == self.id:
-                            try:
-                                options.remove(neighbor)
-                            except ValueError:
-                                pass
-                        this_counter = markers[antid]['strength']
-                        counter_dict[this_counter] = neighbor
-
-            except AttributeError:
-                print 'PASS: no markers'
-                pass
-
-        # if ant has food, go toward exit
-        if has_food:
-            if coord == self.farm.a_goal[0]:
-                self.leave_chemical(coord,'food',0)
-            else:
-                self.leave_chemical(coord,'food',dist_food)
-            print 'go to exit',
-            # look for markers that point to exit
-            # if no markers point to an exit, retrace 'food' path toward weakest 'food' marker
-            # is the next square exit?
-            if next_exit != None:
-                print '... found exit!'
-                new_position = next_exit
-                has_food = False
-
-            else:
-                
-                if not exit_dict:
-                # ok there's no exit markers for some reason
-                    print '... no exit markers',
-
-                    if len(options) > 0:
-                        print '... shuffle'
-                        new_position = food_dict[max(food_dict)]
-                        ant_mode = 'find exit'
-                        #shuffle(options)
-                        #new_position = options[0]
-                    else:
-                        print '... min counter'
-                        new_position = counter_dict[min(counter_dict)]
+        # first get minimum distance for each coordinate
+        for dist in dist_dict:
+            if dist != None:
+                coord = dist_dict[dist]
+                if coord in min_dist:
+                    if dist < min_dist[coord]:
+                        min_dist[coord] = float(dist)
                 else:
-                    print '... trace back to exit ',
-                    
-                    new_position = exit_dict[min(exit_dict)]
+                    min_dist[coord] = float(dist)
+        # now get combination value distance * num of ants
+        for coord in min_dist:
+            dist = min_dist[coord]
+            inv_count = float(1 / float(counts_dict[coord]))
+            combo[coord] = float(inv_count * dist)
 
+        sorted_keys = sorted(combo, key=combo.get)
+        print 'sorted keys: ',sorted_keys
+        try:
+            best_position = sorted_keys[0]
+        except IndexError:
+            best_position = dist_dict[min(dist_dict)]
 
-        # if ant does not have food, go toward food
-        else:
-            if coord in exits:
-                self.leave_chemical(coord,'exit',0)
-            else:
-                self.leave_chemical(coord,'exit',dist_exit)
-            print 'go to food',
-            # is the next square food?
-            if next_food != None:
-                print '... found food!'
-                new_position = next_food
-                has_food = True
-                
-            else:
-                
-                if not food_dict:
-                # ok there's no food markers for some reason
-                    print '... no food markers',
-                    if len(options) > 0:
-                        print '... shuffle'
-                        #shuffle(options)
-                        #new_position = options[0]
-                        new_position = exit_dict[max(exit_dict)]
-                        ant_mode = 'find food'
-                    else:
-                        print '... min counter'
-                        new_position = counter_dict[min(counter_dict)]
-                else:
-                    print '... trace back to food'
-                    new_position = food_dict[min(food_dict)]
-
-            
-        return new_position, ant_mode, has_food
-
+        return best_position
 
     def leave_chemical(self,coord,chemical,dist=None):
         # leave a chemical marker
@@ -545,6 +231,243 @@ class Ant(object):
         
         self.farm.leave_marker(self,marker_pos,marker_type,dist,marker_strength)
     
+    def spawn_ant(self):
+
+        maze_len = len(self.farm.a_maze_map)
+        n = sqrt(maze_len) - 1
+        x = randint(0,n)
+        y = randint(0,n)
+        new_position = (x,y)
+        ant_mode = 'explore'
+        has_food = False
+        
+        return new_position, ant_mode, has_food
+
+    
+
+    def state_machine(self,ant_mode,neighbor,has_food,marker=None):
+
+        def found_food(ant, **kwargs):
+            print "ANT FOUND FOOD"
+            ant_mode = 'find exit'
+
+            return True,ant_mode,True
+
+        def found_exit(ant, **kwargs):
+            print "ANT FOUND EXIT"
+            ant_mode = 'find food'
+
+            return True,ant_mode,False
+        
+        def retrieve_found_exit(ant, **kwargs):
+            ant_mode = 'retrieve food'
+            if has_food:
+                print "ANT FOUND EXIT - RETRIEVING FOOD"
+                return True,ant_mode,False
+            else:
+                return False,ant_mode,has_food
+
+        def retrieve_found_food(ant, **kwargs):
+            ant_mode = 'retrieve food'
+            if not has_food:
+                print "ANT FOUND FOOD - RETRIEVING FOOD"
+                return True,ant_mode,True
+            else:
+                return False,ant_mode,has_food
+
+        def retrieve_found_path(ant, **kwargs):
+            print "ANT FOUND FOOD PATH - RETRIEVING FOOD"
+            ant_mode = 'retrieve food'
+            return True,ant_mode,has_food
+
+        def do_nothing(ant, **kwargs):   
+            return False,ant_mode,has_food
+
+        exits = self.farm.a_exits
+
+        HANDLERS = {
+            'explore:food' : found_food,
+            'explore:exit' : found_exit,
+            'explore:foodmarker' : retrieve_found_path,
+            'find food:food' : retrieve_found_food,
+            'find food:exit' : do_nothing,
+            'find food:foodmarker' : retrieve_found_path,
+            'find exit:food' : do_nothing,
+            'find exit:exit' : retrieve_found_exit,
+            'find exit:exitmarker' : retrieve_found_path,
+            'retrieve food:food' : retrieve_found_food,
+            'retrieve food:exit' : retrieve_found_exit
+        }
+        
+        key = ""
+        if neighbor in exits:
+            key = "%s:%s" % (ant_mode, "exit")
+        if neighbor == self.farm.a_goal[0]:
+            key = "%s:%s" % (ant_mode, "food")
+        if marker == 'food':
+            key = "%s:%s" % (ant_mode, "foodmarker")
+        if marker == 'exit':
+            key = "%s:%s" % (ant_mode, "exitmarker")
+
+
+
+        if key in HANDLERS:
+            return HANDLERS[key](self)
+        else:
+            return False,ant_mode,has_food
+
+
+    def prep_chemical_coord(self,ant_mode,coord,has_food):
+        connections = self.farm.a_connections
+        exits = self.farm.a_exits
+        neighbors = connections[coord]
+        goal = self.farm.a_goal[0]
+
+        dist_exit = self.get_min_dist(neighbors,'exit')
+        dist_food = self.get_min_dist(neighbors,'food')
+
+        if ant_mode == 'explore':
+            self.leave_chemical(coord,'search')
+
+        elif ant_mode == 'find food':
+            if coord in exits:
+                self.leave_chemical(coord,'exit',0)
+            else:
+                self.leave_chemical(coord,'exit',dist_exit)
+
+        elif ant_mode == 'find exit':
+            if coord == goal:
+                self.leave_chemical(coord,'food',0)
+            else:
+                self.leave_chemical(coord,'food',dist_food)
+
+        elif ant_mode == 'retrieve food':
+            if has_food:
+                if coord == goal:
+                    self.leave_chemical(coord,'food',0)
+                else:
+                    self.leave_chemical(coord,'food',dist_food)
+            else:
+                if coord in exits:
+                    self.leave_chemical(coord,'exit',0)
+                else:
+                    self.leave_chemical(coord,'exit',dist_exit)
+
+
+    def prep_neighbors(self, ant_mode, coord, has_food):
+        connections = self.farm.a_connections
+        exits = self.farm.a_exits
+        neighbors = connections[coord]
+
+        options = list(neighbors)
+        strength_dict = {}
+        exit_dict = {}
+        food_dict = {}
+
+        exits_count = defaultdict(int)
+        foods_count = defaultdict(int)
+
+        for neighbor in neighbors:
+
+            # do mode-specific checks on neighboring square
+            breakout,ant_mode,has_food = self.state_machine(ant_mode,neighbor,has_food)
+            
+            if breakout:
+                options = [neighbor]
+                break
+
+            try:
+                # get markers for neighbor
+                markers = self.farm.get_markers(neighbor)
+
+                if markers != None:
+                    # loop through each of the markers
+                    for antid in markers:
+                        breakout,ant_mode,has_food = self.state_machine(ant_mode,neighbor,has_food,markers[antid]['chemical'])
+            
+                        if breakout:
+                            options = [neighbor]
+                            break
+
+                        # does one of these have an 'exit' marker?
+                        if markers[antid]['chemical'] == 'exit':
+
+                            this_dist = markers[antid]['dist']
+                            exit_dict[this_dist] = neighbor
+                            exits_count[neighbor] += 1
+                            
+                        if markers[antid]['chemical'] == 'food':
+                            this_dist = markers[antid]['dist']
+                            food_dict[this_dist] = neighbor
+                            foods_count[neighbor] += 1
+
+                        this_strength = markers[antid]['strength']
+                        strength_dict[this_strength] = neighbor
+
+                        if ant_mode == 'retrieve food' or ant_mode == 'find exit':
+                            if antid == self.id:
+                                try:
+                                    options.remove(neighbor)
+                                except ValueError:
+                                    pass
+                        else:
+                            try:
+                                options.remove(neighbor)
+                            except ValueError:
+                                pass
+
+
+            except AttributeError:
+                print 'PASS: no markers'
+                pass
+
+        return options, strength_dict, food_dict, foods_count, exit_dict, exits_count, ant_mode, has_food, breakout
+
+    def get_next_ant_move(self,previous):
+        ant_mode = previous['mode']
+        coord = previous['pos']
+        has_food = previous['has_food']
+        new_position = None
+
+        options, strength_dict, food_dict, foods_count, exit_dict, exits_count, new_ant_mode, new_has_food, breakout = self.prep_neighbors(ant_mode,coord,has_food)
+        if ant_mode == 'explore' or ant_mode == 'find food' or ant_mode == 'find exit':
+            if len(options) > 0:
+                shuffle(options)
+                new_position = options[0]
+            else:
+                new_position = strength_dict[min(strength_dict)]
+        elif ant_mode == 'retrieve food':
+            if breakout:
+                new_position = options[0]
+            else:
+                if has_food:
+                    if not exit_dict:
+                        print '... no exit markers',
+                        if len(food_dict) > 0:
+                            print '... max food dict'
+                            new_position = food_dict[max(food_dict)]
+                            new_ant_mode = 'find exit'
+                        else:
+                            print '... min strength'
+                            new_position = strength_dict[min(strength_dict)]
+                    else:
+                        print 'trace back to exit'
+                        new_position = self.get_popular_coord(exit_dict,exits_count)
+                else:    
+                    if not food_dict:
+                        print '... no food markers',
+                        if len(exit_dict) > 0:
+                            print '... max exit dict'
+                            new_position = exit_dict[max(exit_dict)]
+                            new_ant_mode = 'find food'
+                        else:
+                            print '... min strength'
+                            new_position = strength_dict[min(strength_dict)]
+                    else:
+                        print 'trace back to food'
+                        new_position = self.get_popular_coord(food_dict,foods_count)
+        return new_position, new_ant_mode, new_has_food
+
     def increment_ant(self,previous):
         '''
         ant modes include 'explore','find food','find exit','retrieve food'
@@ -555,26 +478,19 @@ class Ant(object):
         if previous:
             
             ant_mode = previous['mode']
+            coord = previous['pos']
+            has_food = previous['has_food']
+            
+            self.prep_chemical_coord(ant_mode,coord,has_food)
 
-            if ant_mode == 'explore':
-                new_position, ant_mode, has_food = self.explore(previous)
-            elif ant_mode == 'find exit':
-                new_position, ant_mode, has_food = self.find_exit(previous)
-            elif ant_mode == 'find food':
-                new_position, ant_mode, has_food = self.find_food(previous)
-            elif ant_mode == 'retrieve food':
-                new_position, ant_mode, has_food = self.retrieve_food(previous)
+            
+            new_position, ant_mode, has_food = self.get_next_ant_move(previous)
+            
 
-            print 'ant mode ',self.id,': ',ant_mode, ', ',new_position
+            print self.id,': ',ant_mode, ', ',new_position
         else:
             # spawn the ants randomly on the maze
-            maze_len = len(maze_map)
-            n = sqrt(maze_len) - 1
-            x = randint(0,n)
-            y = randint(0,n)
-            new_position = (x,y)
-            ant_mode = 'explore'
-            has_food = False
+            new_position, ant_mode, has_food = self.spawn_ant()
 
         ant = {
             'antid' : self.id,

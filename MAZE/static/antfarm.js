@@ -6,7 +6,7 @@ var pageCounter = setInterval(incrementWorld, TURN_SPEED);
 counter = 0;
 var antColors = {}
 
-var antNames = ['picard','riker','la forge','worf','crusher','troi','data','wesley','o\'brien','guinan','q']
+var antNames = ['picard','riker','la forge','worf','crusher','troi','data','wesley','o\'brien','guinan','q','ro']
 var antIds = {}
 
 function shuffle(a) {
