@@ -59,7 +59,7 @@ def increment_world():
 def threaded_function():   
     increment_world()
 
-    t = Timer(1.0,threaded_function)
+    t = Timer(0.5,threaded_function)
     t.start()
 
 if __name__ == '__main__':
