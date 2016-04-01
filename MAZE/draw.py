@@ -386,11 +386,6 @@ class Maze(object):
         for tile in maze_map:
             next_coords = self.get_neighbors(maze_map,tile)
             connections[tile] = next_coords
-        print '-----------'
-        print 'original connections: '
-        for connection in connections:
-            print connection,': ',connections[connection]
-        print '-----------'
 
         for curr in connections:
             # this is an array of coordinates that the current tile is trying to connect to
@@ -401,11 +396,11 @@ class Maze(object):
                 if not curr in reciprocal_coords:
                     # if the current tile is not in the reciprocal connecting coordinates, remove it
                     connections[curr].remove(conn_coord)
-                    print 'removed connection', conn_coord,' at ',curr
-        print '-----------'
-        for connection in connections:
-            print connection,': ',connections[connection]
-        print '-----------'
+                    #print 'removed connection', conn_coord,' at ',curr
+        #print '-----------'
+        #for connection in connections:
+        #    print connection,': ',connections[connection]
+        #print '-----------'
         return connections
 
     def get_neighbors(self,maze_map,coord):

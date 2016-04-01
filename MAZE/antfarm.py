@@ -84,8 +84,12 @@ class AntFarm(object):
         dict_keys = list(self.a_maze_map.keys())
         r = randint(0,len(dict_keys)-1)
         new_goal = dict_keys[r]
-        print 'NEW GOAL: ',new_goal
-        return new_goal
+        connections = self.a_connections[new_goal]
+        if len(connections) > 0:
+            print 'NEW GOAL: ',new_goal
+            return new_goal
+        else:
+            self.create_new_goal()
 
     def reduce_food(self):
         if self.a_food > 0:
@@ -174,7 +178,8 @@ class AntFarm(object):
             'visited' : visited_tiles,
             'food' : self.a_goal,
             'maze' : self.a_maze,
-            'food_gathered' : self.a_food_exits
+            'food_gathered' : self.a_food_exits,
+            'counter' : self.counter
         }
         
         return json.dumps(ret)

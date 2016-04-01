@@ -1,8 +1,10 @@
-var TURN_SPEED = 1100
+var TURN_SPEED = 1000
 
 var svg = d3.select('#antfarm').insert('svg',':first-child');
 
 var pageCounter = setInterval(incrementWorld, TURN_SPEED);
+var maxCounter = setInterval(refreshMaxCounter, TURN_SPEED * 100)
+
 counter = 0;
 var antColors = {}
 
@@ -147,19 +149,22 @@ function setMarkers(markers,visited){
     });
 }
 function setText(dataText, totalRooms, dataCopyAnts){
-    var textVisited = svg.selectAll('text.text-visited')
+    var textVisited = svg.selectAll('g.panel')
         .data(dataText);
 
-    textVisited.enter()
-        .append('text')
-        .attr('class','text-visited')
-        .attr('x',820)
-        .attr('y',20)
+    var textGroup = textVisited.enter().append('g')
 
-    textVisited.text(function(d){
-        var percentage = parseInt(parseInt(d) / parseInt(totalRooms) * 100)
-        return 'explored: '+percentage+'%'
-    });
+    textGroup
+        .attr('class','panel')
+        .attr('transform','translate(820,240)')
+        .attr('font-size','12')
+            .append('text')
+            .attr('class','text-visited')
+            .html(function(d){
+                var percentage = parseInt(parseInt(d) / parseInt(totalRooms) * 100)
+                return '<tspan>explored:</tspan>'
+                +'<tspan text-anchor="end" x="140px">'+percentage+'%</tspan>'
+            });
 
     textVisited.exit().remove();
 
@@ -170,21 +175,22 @@ function setText(dataText, totalRooms, dataCopyAnts){
         .append('text')
         .attr('class','side')
         .attr('transform', function(d,i){
-            num = 40 + (20 * i)
+            num = 20 + (20 * i)
             return 'translate(820,'+ num +')'
         }).attr('font-size','12')
         .attr('fill',function(d){
             return antColors[d.antid]
         })
 
-    antText.text(function(d){
+    antText.html(function(d){
             var antName = antIds[d.antid]
             var antMode = d.mode
             var hasFood = ''
             if (d.has_food){
                 hasFood = ' \u2605'
             }
-            return antName+': '+antMode+hasFood
+            return '<tspan>'+antName+':</tspan>'
+            +'<tspan text-anchor="end" x="140px">'+antMode+hasFood+'</tspan>'
         });
     antText.exit().remove();   
 }
@@ -234,17 +240,19 @@ function setFoodGathered(data){
         obj['pos'] = data[key]['coord']
         foodArr.push(obj)
     }
-    var foodText = svg.selectAll('text.food')
+    var foodText = d3.select('g.panel').selectAll('text.food-gathered')
         .data(food)
 
     foodText.enter()
         .append('text')
-        .attr('class','food')
-        .attr('transform','translate(820,260)')
-        .attr('font-size','12')
+        .attr('class','food-gathered')
+        .attr('dy','20px')
+        .attr('x',0)
+        .attr('y',0)
 
-    foodText.text(function(d){
-        return 'food gathered: '+d
+    foodText.html(function(d){
+        return '<tspan>food gathered:</tspan>'
+        +'<tspan text-anchor="end" x="140px">'+d+'</tspan>'
     });
     
     foodText.exit().remove();
@@ -272,11 +280,30 @@ function setFoodGathered(data){
 
     foodContainer.exit().remove();
 }
+
+function setTurnText(data){
+    var turn = [data]
+
+    var turnText = d3.select('g.panel').selectAll('text.turn')
+        .data(turn)
+
+    turnText.enter()
+        .append('text')
+        .attr('class','turn')
+        .attr('dy','40')
+        
+    
+    turnText.text(function(d){
+        return 'turn: '+d
+    });
+
+    turnText.exit().remove()
+}
 function incrementWorld() {
     var url = '/ant/api/v1.0/actions/' + counter;
     var result = d3.json(url, function(error,data){
         if (error){
-            console.log('error')
+            console.log('error getting ant action')
         } else {
             //console.log('data: '+JSON.stringify(data))
 
@@ -316,9 +343,43 @@ function incrementWorld() {
             
             setFoodGathered(data.food_gathered)
 
+            setTurnText(data.counter)
+
+            if (counter == 0){
+                refreshMaxCounter();
+            }
+
             counter ++;
         } 
     });
 }
 
+function refreshMaxCounter(){
+    var result = d3.json('/ant/api/v1.0/max-counter', function(error,data){
+        if (error){
+            console.log('error getting max counter')
+        } else {
+            console.log('max counter: '+JSON.stringify(data))
+            var maxArr = [data.max]
+
+            var maxTurnText = d3.select('g.panel').selectAll('text.max-turn')
+                .data(maxArr)
+
+            maxTurnText.enter()
+                .append('text')
+                .attr('class','max-turn')
+                .attr('dy','40')
+                .attr('dx','140')
+                .attr('text-anchor','end')
+
+            maxTurnText.text(function(d){
+                return '/ '+d
+            })
+
+            maxTurnText.exit().remove()
+
+
+        }
+    });
+}
 
