@@ -28,6 +28,12 @@
     height: 800px;
 }
 
+#antfarm form{
+    z-index: 100;
+    position: absolute;
+    right: 0;
+    top: 300px;
+}
 
 @-webkit-keyframes pulse {
     0% { -webkit-transform: scale(1); }

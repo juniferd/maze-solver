@@ -2,7 +2,7 @@ import json
 
 from threading import Thread,Timer
 from operator import itemgetter
-from flask import Flask,render_template,session
+from flask import Flask,render_template,session,request
 
 import antfarm
 
@@ -74,4 +74,4 @@ def threaded_function():
 if __name__ == '__main__':
     threaded_function()
     
-    app.run(debug=True)
+    app.run()

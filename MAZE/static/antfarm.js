@@ -3,9 +3,11 @@ var TURN_SPEED = 1000
 var svg = d3.select('#antfarm').insert('svg',':first-child');
 
 var pageCounter = setInterval(incrementWorld, TURN_SPEED);
-var maxCounter = setInterval(refreshMaxCounter, TURN_SPEED * 100)
+var maxCounter = setInterval(refreshMaxCounter, TURN_SPEED * 30)
 
 counter = 0;
+maxCounterNum = 0;
+
 var antColors = {}
 
 var antNames = ['picard','riker','la forge','worf','crusher','troi','data','wesley','o\'brien','guinan','q','ro']
@@ -149,26 +151,24 @@ function setMarkers(markers,visited){
     });
 }
 function setText(dataText, totalRooms, dataCopyAnts){
-    var textVisited = svg.selectAll('g.panel')
+    
+    var textVisited = d3.select('g.panel').selectAll('text.text-visited')
         .data(dataText);
 
-    var textGroup = textVisited.enter().append('g')
+    textVisited.enter()
+        .append('text')
+        .attr('class','text-visited')
+        .attr('dy','240')
 
-    textGroup
-        .attr('class','panel')
-        .attr('transform','translate(820,240)')
-        .attr('font-size','12')
-            .append('text')
-            .attr('class','text-visited')
-            .html(function(d){
-                var percentage = parseInt(parseInt(d) / parseInt(totalRooms) * 100)
-                return '<tspan>explored:</tspan>'
-                +'<tspan text-anchor="end" x="140px">'+percentage+'%</tspan>'
-            });
-
+    textVisited
+        .html(function(d){
+            var percentage = parseInt(parseInt(d) / parseInt(totalRooms) * 100)
+            return '<tspan>explored:</tspan>'
+            +'<tspan text-anchor="end" x="140px">'+percentage+'%</tspan>'
+        });
     textVisited.exit().remove();
 
-    var antText = svg.selectAll('text.side')
+    var antText = d3.select('g.panel').selectAll('text.side')
         .data(dataCopyAnts)
     
     antText.enter()
@@ -176,7 +176,7 @@ function setText(dataText, totalRooms, dataCopyAnts){
         .attr('class','side')
         .attr('transform', function(d,i){
             num = 20 + (20 * i)
-            return 'translate(820,'+ num +')'
+            return 'translate(0,'+ num +')'
         }).attr('font-size','12')
         .attr('fill',function(d){
             return antColors[d.antid]
@@ -246,7 +246,7 @@ function setFoodGathered(data){
     foodText.enter()
         .append('text')
         .attr('class','food-gathered')
-        .attr('dy','20px')
+        .attr('dy','260px')
         .attr('x',0)
         .attr('y',0)
 
@@ -290,7 +290,7 @@ function setTurnText(data){
     turnText.enter()
         .append('text')
         .attr('class','turn')
-        .attr('dy','40')
+        .attr('dy','280')
         
     
     turnText.text(function(d){
@@ -299,6 +299,7 @@ function setTurnText(data){
 
     turnText.exit().remove()
 }
+
 function incrementWorld() {
     var url = '/ant/api/v1.0/actions/' + counter;
     var result = d3.json(url, function(error,data){
@@ -306,6 +307,11 @@ function incrementWorld() {
             console.log('error getting ant action')
         } else {
             //console.log('data: '+JSON.stringify(data))
+            d3.select('svg')
+                .append('g')
+                .attr('class','panel')
+                .attr('transform','translate(820,0)')
+                .attr('font-size','12')
 
             var dataCopyAnts = JSON.parse(JSON.stringify(data.ants))
 
@@ -359,7 +365,7 @@ function refreshMaxCounter(){
         if (error){
             console.log('error getting max counter')
         } else {
-            console.log('max counter: '+JSON.stringify(data))
+            
             var maxArr = [data.max]
 
             var maxTurnText = d3.select('g.panel').selectAll('text.max-turn')
@@ -368,7 +374,7 @@ function refreshMaxCounter(){
             maxTurnText.enter()
                 .append('text')
                 .attr('class','max-turn')
-                .attr('dy','40')
+                .attr('dy','280')
                 .attr('dx','140')
                 .attr('text-anchor','end')
 
@@ -378,7 +384,7 @@ function refreshMaxCounter(){
 
             maxTurnText.exit().remove()
 
-
+            maxCounterNum = maxArr[0]
         }
     });
 }

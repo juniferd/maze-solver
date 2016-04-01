@@ -9,9 +9,15 @@
     {% endif %}
     <div id = "antfarm">
         <img src = "{{ url_for('static', filename='img/output.jpg') }}">
+        <form name="ff" id="ff">
+            <input type="text" id="newTurn" maxlength="" />
+            <br/>
+            <input name="Submit" id="submitTurn" type="submit" value="fast forward" />
+        </form>
     </div>
 {% endblock %}
 
 {% block footerjs %}
     <script src = "../static/antfarm.js"></script>
+    <script src = "../static/antpost.js"></script>
 {% endblock %}

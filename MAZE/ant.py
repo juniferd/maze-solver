@@ -270,7 +270,7 @@ class Ant(object):
         prep_result.ant_mode = ant_mode
         prep_result.has_food = has_food
 
-        print 'INITIAL OPTIONS: ',prep_result.options
+        #print 'INITIAL OPTIONS: ',prep_result.options
         for neighbor in neighbors:
 
             # do mode-specific checks on neighboring square
@@ -290,7 +290,7 @@ class Ant(object):
             try:
                 # get markers for neighbor
                 markers = self.farm.get_markers(neighbor)
-                print 'INITIAL MARKERS: ',markers
+                #print 'INITIAL MARKERS: ',markers
                 if markers != None:
                     # loop through each of the markers
                     for antid in markers:
@@ -334,7 +334,7 @@ class Ant(object):
             except AttributeError:
                 print 'PASS: no markers'
                 pass
-        print 'OPTIONS AFTER LOOP: ',prep_result.options
+        #print 'OPTIONS AFTER LOOP: ',prep_result.options
         return prep_result
 
     def get_next_ant_move(self,previous):
