@@ -45,7 +45,7 @@ class AntFarm(object):
             tile_type = self.a_maze_map[tile]
 
             # blank tile
-            svg_maze.append({'x':20*x,'y':20*y,'width':20,'height':20,'fill':'#eeeeee'})
+            svg_maze.append({'x':20*x,'y':20*y,'width':20,'height':20,'fill':'#eeeeee','class':'bg'})
 
             # left-right
             if (tile_type == '-'):

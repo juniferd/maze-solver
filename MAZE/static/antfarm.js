@@ -304,8 +304,8 @@ function incrementWorld() {
             setMarkers(markers, data.visited)
 
             var dataText = [Object.keys(data.visited).length]
-            var totalRooms = Object.keys(data.maze).length
-
+            var totalRooms = document.querySelectorAll('rect.bg').length
+            
             setTurnText(data.counter)
 
             setFoodTextGathered(data.food_gathered)

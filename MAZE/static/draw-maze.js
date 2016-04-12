@@ -16,6 +16,13 @@ var Maze = {
             .attr('width',tile.width)
             .attr('height',tile.height)
             .attr('fill',tile.fill)
+            .attr('class',function(){
+                if (tile.class){
+                    return tile.class
+                } else {
+                    return 'path'
+                }
+            })
         
     
     }
