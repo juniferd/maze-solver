@@ -24,7 +24,8 @@ class AntFarm(object):
         self.a_connections = a_maze.get_all_neighbors(self.a_maze_map)
         self.counter = 0
         self.a_exits = a_maze.get_exits()
-        self.a_maze = {str(k) :[tuple(i) for i in v] for k,v in self.a_connections.items()}
+        self.a_svg_maze = self.get_svg_attr()
+        self.a_maze = {str(k) :[tuple(i) for i in v] for k,v in self.a_maze_map.items()}
         self.a_food_exits = {}
         self.a_food = FOOD
             
@@ -34,6 +35,66 @@ class AntFarm(object):
         self.visited_tiles = {}
 
         image.init(self.a_maze_map,self.a_goal,self.a_solution,False)
+
+    def get_svg_attr(self):
+        svg_maze = []
+        for tile in self.a_maze_map:
+            temp = {}
+            x = tile[0]
+            y = tile[1]
+            tile_type = self.a_maze_map[tile]
+
+            # blank tile
+            svg_maze.append({'x':20*x,'y':20*y,'width':20,'height':20,'fill':'#eeeeee'})
+
+            # left-right
+            if (tile_type == '-'):
+                svg_maze.append({'x':20*x,'y':(20*y)+5,'width':20,'height':10,'fill':'#ffffff'})
+            # up-down
+            elif (tile_type == '|'):
+                svg_maze.append({'x':(20*x)+5,'y':(20*y),'width':10,'height':20,'fill':'#ffffff'})
+            # up-right
+            elif (tile_type == 'l'):
+                svg_maze.append({'x':(20*x)+5,'y':(20*y),'width':10,'height':15,'fill':'#ffffff'})
+                svg_maze.append({'x':(20*x)+15,'y':(20*y)+5,'width':5,'height':10,'fill':'#ffffff'})
+            # up-left
+            elif (tile_type == 'j'):
+                svg_maze.append({'x':(20*x)+5,'y':(20*y),'width':10,'height':15,'fill':'#ffffff'})
+                svg_maze.append({'x':(20*x),'y':(20*y)+5,'width':5,'height':10,'fill':'#ffffff'})
+            # down-right
+            elif (tile_type == 'r'):
+                svg_maze.append({'x':(20*x)+5,'y':(20*y)+5,'width':10,'height':15,'fill':'#ffffff'})
+                svg_maze.append({'x':(20*x)+15,'y':(20*y)+5,'width':5,'height':10,'fill':'#ffffff'})
+            # down-left
+            elif (tile_type == '7'):
+                svg_maze.append({'x':(20*x)+5,'y':(20*y)+5,'width':10,'height':15,'fill':'#ffffff'})
+                svg_maze.append({'x':(20*x),'y':(20*y)+5,'width':5,'height':10,'fill':'#ffffff'})
+            # up-right-down
+            elif (tile_type == '<'):
+                svg_maze.append({'x':(20*x)+5,'y':(20*y),'width':10,'height':20,'fill':'#ffffff'})
+                svg_maze.append({'x':(20*x)+15,'y':(20*y)+5,'width':5,'height':10,'fill':'#ffffff'})
+            # up-left-down
+            elif (tile_type == '>'):
+                svg_maze.append({'x':(20*x)+5,'y':(20*y),'width':10,'height':20,'fill':'#ffffff'})
+                svg_maze.append({'x':(20*x),'y':(20*y)+5,'width':5,'height':10,'fill':'#ffffff'})
+            # up-left-right
+            elif (tile_type == 'v'):
+                svg_maze.append({'x':(20*x),'y':(20*y)+5,'width':20,'height':10,'fill':'#ffffff'})
+                svg_maze.append({'x':(20*x)+5,'y':(20*y),'width':10,'height':5,'fill':'#ffffff'})
+            # down-left-right
+            elif (tile_type == '^'):
+                svg_maze.append({'x':(20*x),'y':(20*y)+5,'width':20,'height':10,'fill':'#ffffff'})
+                svg_maze.append({'x':(20*x)+5,'y':(20*y)+15,'width':10,'height':5,'fill':'#ffffff'})
+            # cross
+            elif (tile_type == '+'):
+                svg_maze.append({'x':(20*x),'y':(20*y)+5,'width':20,'height':10,'fill':'#ffffff'})
+                svg_maze.append({'x':(20*x)+5,'y':(20*y),'width':10,'height':20,'fill':'#ffffff'})
+
+            
+            
+            
+
+        return svg_maze
 
     def get_maze(self):
         return self.a_maze_map
@@ -177,7 +238,7 @@ class AntFarm(object):
             'markers' : self.markers,
             'visited' : visited_tiles,
             'food' : self.a_goal,
-            'maze' : self.a_maze,
+            'maze' : self.a_svg_maze,
             'food_gathered' : self.a_food_exits,
             'counter' : self.counter
         }

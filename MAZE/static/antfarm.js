@@ -1,6 +1,6 @@
 var TURN_SPEED = 1000
 
-var svg = d3.select('#antfarm').insert('svg',':first-child');
+var svg = d3.select('#antfarm').insert('svg');
 
 var pageCounter = setInterval(incrementWorld, TURN_SPEED);
 var maxCounter = setInterval(refreshMaxCounter, TURN_SPEED * 30)
@@ -271,12 +271,11 @@ function incrementWorld() {
             console.log('error getting ant action')
         } else {
             //console.log('data: '+JSON.stringify(data))
-            d3.select('svg')
-                .append('g')
-                .attr('class','panel')
-                .attr('transform','translate(820,0)')
-                .attr('font-size','12')
-
+            if (counter == 0){
+                maxCounterNum = refreshMaxCounter();
+                Maze.init(data.maze)
+            }
+            
             var dataCopyAnts = JSON.parse(JSON.stringify(data.ants))
 
             setAnts(data.ants)
@@ -316,12 +315,6 @@ function incrementWorld() {
             setFood(data.food)
             
             setFoodGathered(data.food_gathered)
-
-            
-
-            if (counter == 0){
-                maxCounterNum = refreshMaxCounter();
-            }
 
             counter ++;
         } 

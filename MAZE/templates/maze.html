@@ -2,15 +2,16 @@
 {% block title %}Hello from the ant farm{% endblock %}
 
 {% block content %}
-    <div class="col-xs-12 col-md-10 col-md-push-1">
-        {% if num %}
-          <h1>Hello {{ num }}!</h1>
-        {% else %}
-          <h1>Hello from the ant farm</h1>
-        {% endif %}
-        <div id = "antfarm">
-            <img src = "{{ url_for('static', filename='img/output.jpg') }}">
-            
+    <div class="container">
+        <div class="col-xs-12 col-md-10 col-md-push-1">
+            {% if num %}
+              <h1>Hello {{ num }}!</h1>
+            {% else %}
+              <h1>Hello from the ant farm</h1>
+            {% endif %}
+            <div id = "antfarm">
+                
+            </div>
         </div>
     </div>
 {% endblock %}
@@ -20,11 +21,13 @@
             <div class="turn-container clearfix"><input type="text" id="newTurn"></div>
         </div>
     </div>
+    <div id = "stats-control" class="collapse"></div>
 {% endblock %}
 
 {% block footerjs %}
     <script src = "../static/antfarm.js"></script>
-    
+    <script src = "../static/draw-maze.js"></script>
     <script src = "../static/statspanel.js"></script>
     <script src = "../static/antpost.js"></script>
+    <script src = "../static/ui-controls.js"></script>
 {% endblock %}

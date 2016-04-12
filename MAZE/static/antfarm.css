@@ -3,8 +3,25 @@
 }
 
 #content{
-    width: 960px;
+    position: absolute;
     margin: 0 auto;
+    background: #eee;
+    left: 200px;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    overflow-y: auto;
+    transition: all 0.5s;
+        -webkit-transition: all 0.5s;
+        -moz-transition: all 0.5s;
+        -ms-transition: all 0.5s;
+        -o-transition: all 0.5s;
+}
+#content.sidebar-expanded{
+    left: 200px;
+}
+#content.sidebar-collapsed{
+    left: 20px;
 }
 
 #antfarm{
@@ -34,6 +51,7 @@
     right: 0;
     top: 300px;
 }
+
 #stats-panel{
     position: fixed;
     left: 0;
@@ -46,6 +64,49 @@
     background: rgba(20,20,20,.75);
     color: #fff;
     z-index:100;
+    transition: all 0.5s;
+        -webkit-transition: all 0.5s;
+        -moz-transition: all 0.5s;
+        -ms-transition: all 0.5s;
+        -o-transition: all 0.5s;
+}
+#stats-control{
+    z-index:101;
+    position: fixed;
+    left: 0px;
+    bottom: 0px;
+    width: 200px;
+    text-align: right;
+    background: rgba(20,20,20,.75);
+    padding: 5px;
+    line-height: 1em;
+    color: #fff;
+    transition: all 0.5s;
+        -webkit-transition: all 0.5s;
+        -moz-transition: all 0.5s;
+        -ms-transition: all 0.5s;
+        -o-transition: all 0.5s;
+}
+#stats-control:hover{
+    cursor: pointer;
+    background: rgba(0,0,0,1);
+}
+#stats-control.expand{
+    width: 20px;
+}
+#stats-control.collapse:after{
+    content: '\25c0';
+    font-size: 12px;
+}
+#stats-control.expand:after{
+    content: '\25b6';
+    font-size: 12px;
+}
+#stats-panel.expanded{
+    width: 200px;
+}
+#stats-panel.collapsed{
+    width: 20px;   
 }
 .panel-container{
     width: 230px;
@@ -59,6 +120,7 @@
     padding-right: 30px;
 }
 #stats-panel input#newTurn{
+    opacity: 0;
     background: none;
     border: 1px solid #eee;
     border-radius: 5px;
