@@ -2,22 +2,29 @@
 {% block title %}Hello from the ant farm{% endblock %}
 
 {% block content %}
-    {% if num %}
-      <h1>Hello {{ num }}!</h1>
-    {% else %}
-      <h1>Hello from the ant farm</h1>
-    {% endif %}
-    <div id = "antfarm">
-        <img src = "{{ url_for('static', filename='img/output.jpg') }}">
-        <form name="ff" id="ff">
-            <input type="text" id="newTurn" maxlength="" />
-            <br/>
-            <input name="Submit" id="submitTurn" type="submit" value="fast forward" />
-        </form>
+    <div class="col-xs-12 col-md-10 col-md-push-1">
+        {% if num %}
+          <h1>Hello {{ num }}!</h1>
+        {% else %}
+          <h1>Hello from the ant farm</h1>
+        {% endif %}
+        <div id = "antfarm">
+            <img src = "{{ url_for('static', filename='img/output.jpg') }}">
+            
+        </div>
+    </div>
+{% endblock %}
+{% block sidebar %}
+    <div id = "stats-panel">
+        <div class="panel-container">
+            <div class="turn-container clearfix"><input type="text" id="newTurn"></div>
+        </div>
     </div>
 {% endblock %}
 
 {% block footerjs %}
     <script src = "../static/antfarm.js"></script>
+    
+    <script src = "../static/statspanel.js"></script>
     <script src = "../static/antpost.js"></script>
 {% endblock %}

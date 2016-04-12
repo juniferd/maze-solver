@@ -150,7 +150,7 @@ function setMarkers(markers,visited){
         }
     });
 }
-function setText(dataText, totalRooms, dataCopyAnts){
+/*function setText(dataText, totalRooms, dataCopyAnts){
     
     var textVisited = d3.select('g.panel').selectAll('text.text-visited')
         .data(dataText);
@@ -193,7 +193,7 @@ function setText(dataText, totalRooms, dataCopyAnts){
             +'<tspan text-anchor="end" x="140px">'+antMode+hasFood+'</tspan>'
         });
     antText.exit().remove();   
-}
+}*/
 function setFood(data){
     var food = svg.selectAll('.food')
         .data(data);
@@ -240,23 +240,6 @@ function setFoodGathered(data){
         obj['pos'] = data[key]['coord']
         foodArr.push(obj)
     }
-    var foodText = d3.select('g.panel').selectAll('text.food-gathered')
-        .data(food)
-
-    foodText.enter()
-        .append('text')
-        .attr('class','food-gathered')
-        .attr('dy','260px')
-        .attr('x',0)
-        .attr('y',0)
-
-    foodText.html(function(d){
-        return '<tspan>food gathered:</tspan>'
-        +'<tspan text-anchor="end" x="140px">'+d+'</tspan>'
-    });
-    
-    foodText.exit().remove();
-
     var foodContainer = svg.selectAll('.food-container')
         .data(foodArr)
 
@@ -279,25 +262,6 @@ function setFoodGathered(data){
         })
 
     foodContainer.exit().remove();
-}
-
-function setTurnText(data){
-    var turn = [data]
-
-    var turnText = d3.select('g.panel').selectAll('text.turn')
-        .data(turn)
-
-    turnText.enter()
-        .append('text')
-        .attr('class','turn')
-        .attr('dy','280')
-        
-    
-    turnText.text(function(d){
-        return 'turn: '+d
-    });
-
-    turnText.exit().remove()
 }
 
 function incrementWorld() {
@@ -343,16 +307,20 @@ function incrementWorld() {
             var dataText = [Object.keys(data.visited).length]
             var totalRooms = Object.keys(data.maze).length
 
+            setTurnText(data.counter)
+
+            setFoodTextGathered(data.food_gathered)
+
             setText(dataText, totalRooms, dataCopyAnts)
             
             setFood(data.food)
             
             setFoodGathered(data.food_gathered)
 
-            setTurnText(data.counter)
+            
 
             if (counter == 0){
-                refreshMaxCounter();
+                maxCounterNum = refreshMaxCounter();
             }
 
             counter ++;
@@ -368,15 +336,12 @@ function refreshMaxCounter(){
             
             var maxArr = [data.max]
 
-            var maxTurnText = d3.select('g.panel').selectAll('text.max-turn')
+            var maxTurnText = d3.select('.panel-container > .turn-container').selectAll('span.max-turn')
                 .data(maxArr)
 
             maxTurnText.enter()
-                .append('text')
-                .attr('class','max-turn')
-                .attr('dy','280')
-                .attr('dx','140')
-                .attr('text-anchor','end')
+                .append('span')
+                .attr('class','max-turn float-right')
 
             maxTurnText.text(function(d){
                 return '/ '+d

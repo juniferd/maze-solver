@@ -34,7 +34,87 @@
     right: 0;
     top: 300px;
 }
-
+#stats-panel{
+    position: fixed;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 200px;
+    height: 100%;
+    overflow-x: hidden;
+    overflow-y: auto;
+    background: rgba(20,20,20,.75);
+    color: #fff;
+    z-index:100;
+}
+.panel-container{
+    width: 230px;
+    padding: 20px 20px 40px;
+}
+#stats-panel div.turn-container{
+    font-size: 12px;
+    font-weight: 200;
+    letter-spacing: 0.5px;
+    position: relative;
+    padding-right: 30px;
+}
+#stats-panel input#newTurn{
+    background: none;
+    border: 1px solid #eee;
+    border-radius: 5px;
+        -webkit-border-radius: 5px;
+        -moz-border-radius: 5px;
+        -ms-border-radius: 5px;
+        -o-border-radius: 5px;
+    color: #fff;
+    padding: 5px;
+    max-width: 70px;
+    position: absolute;
+    top: -4px;
+    left: 28px;
+    transition: all 1s;
+        -webkit-transition: all 1s;
+        -moz-transition: all 1s;
+        -ms-transition: all 1s;
+        -o-transition: all 1s;
+}
+#stats-panel input#newTurn:focus{
+    background: #000;
+}
+#stats-panel p{
+    font-size: 12px;
+    font-weight: 200;
+    letter-spacing: 0.5px;
+    padding-right: 30px;
+}
+#stats-panel p span{
+    float: left;
+}
+#stats-panel p span.align-right{
+    float: right;
+}
+.align-right{
+    text-align: right;
+}
+.float-left{
+    float: left;
+}
+.float-right{
+    float: right;
+}
+.clearfix:after {
+     visibility: hidden;
+     display: block;
+     font-size: 0;
+     content: " ";
+     clear: both;
+     height: 0;
+     }
+.clearfix { display: inline-block; }
+/* start commented backslash hack \*/
+* html .clearfix { height: 1%; }
+.clearfix { display: block; }
+/* close commented backslash hack */
 @-webkit-keyframes pulse {
     0% { -webkit-transform: scale(1); }
     50% { -webkit-transform: scale(1.01); }
