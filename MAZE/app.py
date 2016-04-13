@@ -44,6 +44,18 @@ def get_max_counter():
 
     return json.dumps(ret)
 
+@app.route('/ant/api/v1.0/get-maze', methods=['GET'])
+def get_maze():
+    global ANT_FARM
+
+    ANT_FARM.a_svg_maze
+    ret = {
+        'maze' : ANT_FARM.a_svg_maze
+    }
+
+    return json.dumps(ret)
+
+
 def increment_world():
     #global COUNTER
     global WORLD

@@ -1,9 +1,16 @@
 var Maze = {
-    'init' : function(d){
-        n = d.length;
-        for (i = 0; i < n; i++){
-            Maze.drawTile(d[i])    
-        }
+    'init' : function(){
+        var result = d3.json('/ant/api/v1.0/get-maze', function(error,data){
+            if (error) {
+                console.log('error getting maze')
+            } else {
+                d = data.maze
+                n = d.length;
+                for (i = 0; i < n; i++){
+                    Maze.drawTile(d[i])    
+                }
+            }
+        })
         
     },
     'test' : function(d){
@@ -28,3 +35,4 @@ var Maze = {
     }
 }
 
+Maze.init()

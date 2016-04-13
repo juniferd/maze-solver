@@ -273,7 +273,6 @@ function incrementWorld() {
             //console.log('data: '+JSON.stringify(data))
             if (counter == 0){
                 maxCounterNum = refreshMaxCounter();
-                Maze.init(data.maze)
             }
             
             var dataCopyAnts = JSON.parse(JSON.stringify(data.ants))

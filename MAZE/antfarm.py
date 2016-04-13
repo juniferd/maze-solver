@@ -45,7 +45,7 @@ class AntFarm(object):
             tile_type = self.a_maze_map[tile]
 
             # blank tile
-            svg_maze.append({'x':20*x,'y':20*y,'width':20,'height':20,'fill':'#eeeeee','class':'bg'})
+            svg_maze.append({'x':20*x,'y':20*y,'width':20,'height':20,'fill':'#dddddd','class':'bg'})
 
             # left-right
             if (tile_type == '-'):
@@ -89,10 +89,6 @@ class AntFarm(object):
             elif (tile_type == '+'):
                 svg_maze.append({'x':(20*x),'y':(20*y)+5,'width':20,'height':10,'fill':'#ffffff'})
                 svg_maze.append({'x':(20*x)+5,'y':(20*y),'width':10,'height':20,'fill':'#ffffff'})
-
-            
-            
-            
 
         return svg_maze
 
@@ -238,7 +234,6 @@ class AntFarm(object):
             'markers' : self.markers,
             'visited' : visited_tiles,
             'food' : self.a_goal,
-            'maze' : self.a_svg_maze,
             'food_gathered' : self.a_food_exits,
             'counter' : self.counter
         }
