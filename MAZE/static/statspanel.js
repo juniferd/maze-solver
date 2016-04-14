@@ -14,7 +14,7 @@ function setText(dataText, totalRooms, dataCopyAnts){
         +'<span class = "align-right">'+percentage+'%</span>'
     });
     textVisited.exit().remove();
-
+    
     var antText = panel.selectAll('p.side')
         .data(dataCopyAnts)
     

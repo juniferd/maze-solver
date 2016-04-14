@@ -24,8 +24,8 @@ class Ant(object):
             markers = self.farm.get_markers(neighbor)
             if markers != None:
                 for antid in markers:
-                    if markers[antid]['chemical'] == chemical:
-                        dist = markers[antid]['dist']
+                    if markers[antid]['c'] == chemical:
+                        dist = markers[antid]['d']
                         if dist != None:
                             dists.append(dist)
        
@@ -294,21 +294,21 @@ class Ant(object):
                 if markers != None:
                     # loop through each of the markers
                     for antid in markers:
-                        sm_result_m = self.state_machine(ant_mode,neighbor,has_food,markers[antid]['chemical'])
+                        sm_result_m = self.state_machine(ant_mode,neighbor,has_food,markers[antid]['c'])
                         prep_result.breakout = sm_result_m.breakout
                         
-                        this_strength = markers[antid]['strength']
+                        this_strength = markers[antid]['s']
                         prep_result.strength_dict[this_strength] = neighbor
 
                         if ant_mode == 'retrieve food':
-                            if markers[antid]['chemical'] == 'exit':
+                            if markers[antid]['c'] == 'exit':
 
-                                this_dist = markers[antid]['dist']
+                                this_dist = markers[antid]['d']
                                 prep_result.exit_dict[this_dist] = neighbor
                                 prep_result.exits_count[neighbor] += 1
                                 
-                            if markers[antid]['chemical'] == 'food':
-                                this_dist = markers[antid]['dist']
+                            if markers[antid]['c'] == 'food':
+                                this_dist = markers[antid]['d']
                                 prep_result.food_dict[this_dist] = neighbor
                                 prep_result.foods_count[neighbor] += 1
 

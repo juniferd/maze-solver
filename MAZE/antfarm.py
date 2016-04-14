@@ -208,9 +208,9 @@ class AntFarm(object):
         self.markers[str_coord][ant.id]['antid'] = ant.id
         self.markers[str_coord][ant.id]['pos'] = coord
         
-        self.markers[str_coord][ant.id]['chemical'] = chemical
-        self.markers[str_coord][ant.id]['strength'] = strength
-        self.markers[str_coord][ant.id]['dist'] = dist
+        self.markers[str_coord][ant.id]['c'] = chemical
+        self.markers[str_coord][ant.id]['s'] = strength
+        self.markers[str_coord][ant.id]['d'] = dist
         
     def get_markers(self,coord):
         

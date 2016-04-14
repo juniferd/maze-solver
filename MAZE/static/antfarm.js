@@ -105,9 +105,9 @@ function setMarkers(markers,visited){
             }
         }).attr('fill',function(d){
             if (d != null){
-                if (d.chemical == 'food'){
+                if (d.c == 'food'){
                     return 'red'
-                } else if (d.chemical == 'exit') {
+                } else if (d.c == 'exit') {
                     return '#333333'
                 } else {
                     return antColors[d.antid]
@@ -116,7 +116,7 @@ function setMarkers(markers,visited){
             }
         }).attr('fill-opacity',0.5)
         .on('mouseover', function(d){
-            console.log(d.pos+', '+d.antid+', '+d.strength+', '+d.chemical)
+            console.log(d.pos+', '+d.antid+', '+d.s+', '+d.c)
         });
 
     marker.exit().remove();
@@ -255,6 +255,9 @@ function setFoodGathered(data){
     foodContainer.exit().remove();
 }
 
+function antsort(a,b) {
+    return a.antid < b.antid;
+}
 function incrementWorld() {
     var url = '/ant/api/v1.0/actions/'+MAZEID+'/' + counter;
     var result = d3.json(url, function(error,data){
@@ -266,6 +269,8 @@ function incrementWorld() {
                 maxCounterNum = refreshMaxCounter();
             }
             
+            data.ants.sort(antsort)
+
             var dataCopyAnts = JSON.parse(JSON.stringify(data.ants))
 
             setAnts(data.ants)
@@ -278,13 +283,13 @@ function incrementWorld() {
                         markerObj = {}
                         thisPos = ants[key]['pos']
                         thisAntId = ants[key]['antid']
-                        thisChemical = ants[key]['chemical']
-                        thisStrength = ants[key]['strength']
+                        thisChemical = ants[key]['c']
+                        thisStrength = ants[key]['s']
 
                         markerObj['pos'] = thisPos
                         markerObj['antid'] = thisAntId
-                        markerObj['chemical'] = thisChemical
-                        markerObj['strength'] = thisStrength
+                        markerObj['c'] = thisChemical
+                        markerObj['s'] = thisStrength
 
                         markers.push(markerObj)
                     }
@@ -299,7 +304,7 @@ function incrementWorld() {
             setTurnText(data.counter)
 
             setFoodTextGathered(data.food_gathered)
-
+            
             setText(dataText, totalRooms, dataCopyAnts)
             
             setFood(data.food)
