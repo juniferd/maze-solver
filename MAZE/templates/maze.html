@@ -4,11 +4,7 @@
 {% block content %}
     <div class="container">
         <div class="col-xs-12 col-md-10 col-md-push-1">
-            {% if num %}
-              <h1>Hello {{ num }}!</h1>
-            {% else %}
-              <h1>Hello from the ant farm</h1>
-            {% endif %}
+            <h1>Hello from the antfarm</h1>
             <div id = "antfarm">
                 
             </div>
@@ -25,6 +21,15 @@
 {% endblock %}
 
 {% block footerjs %}
+    {% if maze_id %}
+        <script>
+            window.MAZEID = {{maze_id}}
+        </script>
+    {% else %}
+        <script>
+            window.MAZEID = 0
+        </script>
+    {% endif %}
     <script src = "../static/antfarm.js"></script>
     <script src = "../static/draw-maze.js"></script>
     <script src = "../static/statspanel.js"></script>

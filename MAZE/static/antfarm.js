@@ -11,21 +11,12 @@ maxCounterNum = 0;
 var antColors = {}
 
 var antNames = ['picard','riker','la forge','worf','crusher','troi','data','wesley','o\'brien','guinan','q','ro']
-var antIds = {}
+var antIds = { }
 
-function shuffle(a) {
-    var j, x, i;
-    for (i = a.length; i; i -= 1) {
-        j = Math.floor(Math.random() * i);
-        x = a[i - 1];
-        a[i - 1] = a[j];
-        a[j] = x;
-    }
-}
+
 
 function setAntName(antid){
     if (!(antid in antIds)){
-        shuffle(antNames)
         var thisName = antNames[0]
         antIds[antid] = thisName
         antNames.shift()
@@ -265,7 +256,7 @@ function setFoodGathered(data){
 }
 
 function incrementWorld() {
-    var url = '/ant/api/v1.0/actions/' + counter;
+    var url = '/ant/api/v1.0/actions/'+MAZEID+'/' + counter;
     var result = d3.json(url, function(error,data){
         if (error){
             console.log('error getting ant action')
@@ -321,7 +312,7 @@ function incrementWorld() {
 }
 
 function refreshMaxCounter(){
-    var result = d3.json('/ant/api/v1.0/max-counter', function(error,data){
+    var result = d3.json('/ant/api/v1.0/'+MAZEID+'/max-counter', function(error,data){
         if (error){
             console.log('error getting max counter')
         } else {

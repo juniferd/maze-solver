@@ -3,6 +3,7 @@
 }
 
 #content{
+    z-index:10;
     position: absolute;
     margin: 0 auto;
     background: #ddd;
@@ -26,8 +27,8 @@
 
 #antfarm{
     display: block;
-    width: 960px;
-    height: 800px;
+    width: 640px;
+    height: 640px;
     position: relative;
 }
 #antfarm img{
@@ -53,17 +54,18 @@
 }
 
 #stats-panel{
+    
     position: fixed;
     left: 0;
     top: 0;
     bottom: 0;
-    width: 200px;
+    width: 220px;
     height: 100%;
     overflow-x: hidden;
     overflow-y: auto;
     background: rgba(20,20,20,.75);
     color: #fff;
-    z-index:100;
+    z-index:1;
     transition: all 0.5s;
         -webkit-transition: all 0.5s;
         -moz-transition: all 0.5s;
@@ -103,10 +105,10 @@
     font-size: 12px;
 }
 #stats-panel.expanded{
-    width: 200px;
+    width: 220px;
 }
 #stats-panel.collapsed{
-    width: 20px;   
+    width: 40px;   
 }
 .panel-container{
     width: 230px;

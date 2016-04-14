@@ -1,6 +1,6 @@
 var Maze = {
     'init' : function(){
-        var result = d3.json('/ant/api/v1.0/get-maze', function(error,data){
+        var result = d3.json('/ant/api/v1.0/'+MAZEID+'/get-maze', function(error,data){
             if (error) {
                 console.log('error getting maze')
             } else {
