@@ -168,8 +168,8 @@ class AntFarm(object):
         del_keys = []
         for marker_pos in self.markers:
             for antid in self.markers[marker_pos]:
-                if self.markers[marker_pos][antid]['strength'] > 0:
-                    self.markers[marker_pos][antid]['strength'] -= 1
+                if self.markers[marker_pos][antid]['s'] > 0:
+                    self.markers[marker_pos][antid]['s'] -= 1
                 else:
                     del_keys.append([marker_pos,antid])
         for del_key in del_keys:
