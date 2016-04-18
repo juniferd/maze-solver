@@ -28,7 +28,10 @@ def get_action(maze_id,action_id):
         world.client_counter = action_id
         db.save_world(maze_id, world)
 
-    return world.info[action_id]
+
+    info = db.get_info(maze_id, action_id)
+    print "GETTING", maze_id, action_id
+    return info
 
 @app.route('/ant/api/v1.0/<int:maze_id>/max-counter', methods=['GET'])
 def get_max_counter(maze_id):
@@ -56,7 +59,8 @@ def increment_world():
         # only do work on the server 10 moves ahead of client
         if world.farm.counter <= 10 + world.client_counter:
             world.farm.run_farm()
-            world.info[world.farm.counter] = world.farm.make_json()
+
+            db.save_info(world.farm.make_json(), key, world.farm.counter)
 
             world.farm.counter += 1
 

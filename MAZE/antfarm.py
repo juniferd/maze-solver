@@ -20,12 +20,12 @@ class AntFarm(object):
 
         self.a_maze_map = a_maze.get_maze_map()
         self.a_goal = [a_maze.get_goal()]
-        self.a_solution = a_maze.get_solution()
+        #self.a_solution = a_maze.get_solution()
         self.a_connections = a_maze.get_all_neighbors(self.a_maze_map)
         self.counter = 0
         self.a_exits = a_maze.get_exits()
         self.a_svg_maze = self.get_svg_attr()
-        self.a_maze = {str(k) :[tuple(i) for i in v] for k,v in self.a_maze_map.items()}
+        #self.a_maze = {str(k) :[tuple(i) for i in v] for k,v in self.a_maze_map.items()}
         self.a_food_exits = {}
         self.a_food = FOOD
             
@@ -34,7 +34,7 @@ class AntFarm(object):
         self.markers = {}
         self.visited_tiles = {}
 
-        image.init(self.a_maze_map,self.a_goal,self.a_solution,False)
+        #image.init(self.a_maze_map,self.a_goal,self.a_solution,False)
 
     def get_svg_attr(self):
         svg_maze = []
